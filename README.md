@@ -24,6 +24,9 @@ Second cell (0,1) is 0x000B8000 + 16 = 0x000B8010
 ```
 
 ## Notes for x86 Assembly
+
+If you need more info goto "http://www.felixcloutier.com/x86/index.html"
+
 ```
 Lets make some test files
 > nano test.asm
