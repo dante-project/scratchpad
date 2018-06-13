@@ -3,7 +3,7 @@ How to run this?
 First you need to install virtualbox and vagrant, 
 after that clone this repository and run vargant up.
 > git clone git@github.com:dante-project/scratchpad.git
-> vargant up
+> cd scratchpad && vagrant up
 
 The bootstrap.sh script will get executed on machines boot 
 and install all the tools you need to compile the OS.
