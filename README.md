@@ -12,7 +12,7 @@ highest 8 bits are ASCII value of the character
 bit 7-4 the background and 
 bit 3-0 foreground
 Bit:     |15 14 13 12 11 10 9 8|7 6 5 4|3 2 1 0|
-Content: | ASCII		       | FG    | BG    |
+Content: | ASCII               | FG    | BG    |
 
 Lets say you want to write 'A'(65,or 0x41) with green
 foreground(2 -see link for colors https://i.imgur.com/bLhytNP.png)
