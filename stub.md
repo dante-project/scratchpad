@@ -1,7 +1,6 @@
 ```
-How to run this?
-First you need to install virtualbox and vagrant, 
-after that clone this repository and run vargant up.
+Compiling the OS
+You need to have virtualbox and vagrant, then just run
 > git clone git@github.com:dante-project/scratchpad.git
 > cd scratchpad && vagrant up
 
@@ -13,6 +12,10 @@ To log into virtual machine run `vagrant ssh`, to exit the VM
 run `logout`, to shutdown the machine run `vagrant halt`, and 
 finally to terminate use of resources on your machine (including 
 virtual machines disks) run `vagrant destroy`.
+
+Running the os in emulator:
+you can load the iso in virtualbox you alredy have or install and use qemu
+> sudo apt-get install qemu qemu-system-i386 grub-legacy xorriso
 
 
 # Extras
