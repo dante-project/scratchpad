@@ -23,7 +23,7 @@ you would use this assembly code
 Second cell (0,1) is 0x000B8000 + 16 = 0x000B8010
 ```
 
-## Notes for x86 Assembly
+### Notes for x86 Assembly
 
 ```
 Lets make some test files
@@ -115,3 +115,59 @@ shr eax,0x8 ;eax >> 8, shift eax 8 bits to right
 x86 uses 'esp' register to point to the top of the stack(the newest element)
 
 ```
+
+
+### GNU Debugger for debugging our kernel
+
+
+> `sudo apt-get install gdb`
+- make some test C file(simple hello world)
+> `gdb hello.c`
+> (gdb) info target 
+Entry point - First code the program runs
+example: "Entry point: 0x580"
+
+> (gdb) `maint info sections`
+- same like "info target" but with more info
+
+> (gdb) `maint info sections .text .data .bss`
+- you can also display only few sections
+
+> (gdb) `maint info sections CODE`
+- displat only sections that contain "CODE"
+
+> (gdb) `info functions` 
+- list all function names and their loaded addresses
+  you can use regex to filter also 
+
+> (gdb) `info variables`
+- list all global and static variable names
+  you can use regex also
+
+> (gdb) `info registers`
+- List current values in commonly used registers
+
+> (gdb) `disassemble main`
+- display assembly code of a function
+
+> (gdb) `disassemble /s main`
+- display assembly code with source code
+
+> (gdb) `disassemble /rs main`
+- display assembly code with souece code and hex
+
+> (gdb) `disassemble /rs 'hello.c'::main`
+- display function in a specific file
+
+> (gdb) `r`
+- start running the program
+
+> (gdb) `b 3`
+- instead of running from start to finish
+  run until line 3
+
+> (gdb) `n`
+- Proceed to the next statement,first line is output produced after executing
+  that line, 2nd line shows where gdb stops currently
+
+
