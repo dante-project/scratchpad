@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>KetOS &#8212; test proj 0.1 documentation</title>
+    <title>Notes &#8212; KetOS 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,9 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="test proj 0.1 documentation" href="#" />
-    <link rel="next" title="Welcome to test proj’s documentation!" href="kernel.html" />
+    <link rel="top" title="KetOS 0.1 documentation" href="index.html" />
+    <link rel="next" title="Compiling the OS" href="stub.html" />
+    <link rel="prev" title="Welcome to test proj’s documentation!" href="kernel.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -41,23 +42,10 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="ketos">
-<h1>KetOS<a class="headerlink" href="#ketos" title="Permalink to this headline">¶</a></h1>
-<p>KetOS is simple OS written in modern C++.</p>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Tilu lilu.</p>
-</div>
-<div class="section" id="notes">
-<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="notes">
+<h1>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="text">
-<h3>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h3>
+<h2>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h2>
 <p>Starting address of memory-mapped I/O for the framebuffer is 0x000B8000. Highest 8 bits are ASCII value of the character, bits 7-4 the background and bits 3-0 foreground color.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Bit</span><span class="p">:</span>     <span class="o">|</span><span class="mi">15</span> <span class="mi">14</span> <span class="mi">13</span> <span class="mi">12</span> <span class="mi">11</span> <span class="mi">10</span> <span class="mi">9</span> <span class="mi">8</span><span class="o">|</span><span class="mi">7</span> <span class="mi">6</span> <span class="mi">5</span> <span class="mi">4</span><span class="o">|</span><span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span><span class="o">|</span>
 <span class="n">Content</span><span class="p">:</span> <span class="o">|</span> <span class="n">ASCII</span>               <span class="o">|</span> <span class="n">FG</span>    <span class="o">|</span> <span class="n">BG</span>    <span class="o">|</span>
@@ -70,7 +58,7 @@ where 0x41 represents ASCII A, 2 is green and 8 is dark grey color.</p>
 <p>Colors: <a class="reference external" href="https://i.imgur.com/bLhytNP.png">https://i.imgur.com/bLhytNP.png</a></p>
 </div>
 <div class="section" id="x86-assembly">
-<h3>x86 Assembly<a class="headerlink" href="#x86-assembly" title="Permalink to this headline">¶</a></h3>
+<h2>x86 Assembly<a class="headerlink" href="#x86-assembly" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Lets</span> <span class="n">make</span> <span class="n">some</span> <span class="n">test</span> <span class="n">files</span>
 <span class="o">&gt;</span> <span class="n">nano</span> <span class="n">test</span><span class="o">.</span><span class="n">asm</span>
 <span class="o">&gt;</span> <span class="n">nasm</span> <span class="o">-</span><span class="n">f</span> <span class="nb">bin</span> <span class="n">test</span><span class="o">.</span><span class="n">asm</span> <span class="o">-</span><span class="n">o</span> <span class="n">test</span>  <span class="p">(</span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">nasm</span><span class="p">)</span>
@@ -188,7 +176,7 @@ shifting</td>
 </div>
 </div>
 <div class="section" id="gnu-debugger">
-<h3>GNU Debugger<a class="headerlink" href="#gnu-debugger" title="Permalink to this headline">¶</a></h3>
+<h2>GNU Debugger<a class="headerlink" href="#gnu-debugger" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><dl class="first docutils">
 <dt>make some test C file(simple hello world)</dt>
@@ -265,38 +253,6 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 </li>
 </ul>
 </div>
-<div class="section" id="compiling-the-os">
-<h3>Compiling the OS<a class="headerlink" href="#compiling-the-os" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default"><div class="highlight"><pre><span></span>You need to have virtualbox and vagrant, then just run
-&gt; git clone git@github.com:dante-project/scratchpad.git
-&gt; cd scratchpad &amp;&amp; vagrant up
-
-The bootstrap.sh script will get executed on machines boot
-and install all the tools you need to compile the OS.
-It will also run makefiles and output os image in /home/build.
-
-To log into virtual machine run `vagrant ssh`, to exit the VM
-run `logout`, to shutdown the machine run `vagrant halt`, and
-finally to terminate use of resources on your machine (including
-virtual machines disks) run `vagrant destroy`.
-
-Running the os in emulator:
-you can load the iso in virtualbox you alredy have or install and use qemu
-&gt; sudo apt-get install qemu qemu-system-i386 grub-legacy xorriso
-
-
-# Extras
-# installing virtualbox and vagrant on Debian 9
-add stretch-backports main and contrib to your apt sources
-sudo apt install virtualbox
-wget https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb
-sudo dpkg -i vagrant_2.1.1_x86_64.deb
-</pre></div>
-</div>
-<div class="toctree-wrapper compound">
-</div>
-</div>
-</div>
 </div>
 
 
@@ -305,31 +261,28 @@ sudo dpkg -i vagrant_2.1.1_x86_64.deb
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">KetOS</a><ul>
-<li><a class="reference internal" href="#notes">Notes</a><ul>
+<li><a class="reference internal" href="#">Notes</a><ul>
 <li><a class="reference internal" href="#text">Text</a></li>
 <li><a class="reference internal" href="#x86-assembly">x86 Assembly</a></li>
 <li><a class="reference internal" href="#gnu-debugger">GNU Debugger</a></li>
-<li><a class="reference internal" href="#compiling-the-os">Compiling the OS</a></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="kernel.html" title="next chapter">Welcome to test proj&#8217;s documentation!</a></li>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="kernel.html" title="previous chapter">Welcome to test proj&#8217;s documentation!</a></li>
+      <li>Next: <a href="stub.html" title="next chapter">Compiling the OS</a></li>
   </ul></li>
 </ul>
 </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/index.txt"
+      <li><a href="_sources/notes.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -348,14 +301,14 @@ sudo dpkg -i vagrant_2.1.1_x86_64.deb
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, frainfreeze.
+      &copy;2018, frainfreeze, kegl.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
-      <a href="_sources/index.txt"
+      <a href="_sources/notes.txt"
           rel="nofollow">Page source</a>
     </div>
 
