@@ -123,8 +123,9 @@ x86 uses 'esp' register to point to the top of the stack(the newest element)
 > `sudo apt-get install gdb`
 - make some test C file(simple hello world)
 > `gdb hello.c`
-> (gdb) info target 
-Entry point - First code the program runs
+
+> (gdb) `info target` 
+- "Entry point" - First code the program runs
 example: "Entry point: 0x580"
 
 > (gdb) `maint info sections`
