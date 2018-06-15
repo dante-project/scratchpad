@@ -62,10 +62,11 @@ where 0x41 represents ASCII A, 2 is green and 8 is dark grey color.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Lets</span> <span class="n">make</span> <span class="n">some</span> <span class="n">test</span> <span class="n">files</span>
 <span class="o">&gt;</span> <span class="n">nano</span> <span class="n">test</span><span class="o">.</span><span class="n">asm</span>
 <span class="o">&gt;</span> <span class="n">nasm</span> <span class="o">-</span><span class="n">f</span> <span class="nb">bin</span> <span class="n">test</span><span class="o">.</span><span class="n">asm</span> <span class="o">-</span><span class="n">o</span> <span class="n">test</span>  <span class="p">(</span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">nasm</span><span class="p">)</span>
-<span class="o">-</span><span class="n">f</span> <span class="n">specifies</span> <span class="n">the</span> <span class="n">file</span> <span class="nb">format</span> <span class="n">of</span> <span class="n">the</span> <span class="n">output</span> <span class="n">file</span><span class="p">(</span><span class="o">-</span><span class="n">o</span><span class="p">)</span>
-   <span class="ow">in</span> <span class="n">this</span> <span class="n">case</span> <span class="n">its</span> <span class="nb">bin</span><span class="p">(</span><span class="n">flat</span> <span class="n">binary</span> <span class="n">output</span> <span class="n">without</span> <span class="nb">any</span> <span class="n">extra</span> <span class="n">information</span>
-   <span class="p">,</span><span class="k">as</span> <span class="ow">in</span> <span class="n">assembly</span> <span class="n">code</span> <span class="o">-&gt;</span> <span class="n">machine</span> <span class="n">code</span><span class="p">(</span><span class="k">as</span> <span class="ow">is</span><span class="p">,</span> <span class="n">without</span> <span class="n">overhead</span> <span class="n">of</span> <span class="n">metadata</span><span class="p">)</span>
-<span class="n">Note</span><span class="p">:</span> <span class="n">using</span> <span class="nb">bin</span> <span class="nb">format</span> <span class="n">puts</span> <span class="n">nasm</span> <span class="n">by</span> <span class="n">default</span> <span class="n">into</span> <span class="mi">16</span><span class="o">-</span><span class="n">bit</span> <span class="n">mode</span><span class="p">,</span> <span class="n">to</span> <span class="n">enable</span> <span class="mi">32</span><span class="n">bit</span>
+   <span class="o">-</span><span class="n">f</span> <span class="n">specifies</span> <span class="n">the</span> <span class="n">file</span> <span class="nb">format</span> <span class="n">of</span> <span class="n">the</span> <span class="n">output</span> <span class="n">file</span><span class="p">(</span><span class="o">-</span><span class="n">o</span><span class="p">)</span>
+   <span class="ow">in</span> <span class="n">this</span> <span class="n">case</span> <span class="n">its</span> <span class="nb">bin</span><span class="p">(</span><span class="n">flat</span> <span class="n">binary</span> <span class="n">output</span> <span class="n">without</span> <span class="nb">any</span> <span class="n">extra</span> <span class="n">information</span><span class="p">,</span>
+   <span class="k">as</span> <span class="ow">in</span> <span class="n">assembly</span> <span class="n">code</span> <span class="o">-&gt;</span> <span class="n">machine</span> <span class="n">code</span><span class="p">(</span><span class="k">as</span> <span class="ow">is</span><span class="p">,</span> <span class="n">without</span> <span class="n">overhead</span> <span class="n">of</span> <span class="n">metadata</span><span class="p">)</span>
+
+    <span class="n">Note</span><span class="p">:</span> <span class="n">using</span> <span class="nb">bin</span> <span class="nb">format</span> <span class="n">puts</span> <span class="n">nasm</span> <span class="n">by</span> <span class="n">default</span> <span class="n">into</span> <span class="mi">16</span><span class="o">-</span><span class="n">bit</span> <span class="n">mode</span><span class="p">,</span> <span class="n">to</span> <span class="n">enable</span> <span class="mi">32</span><span class="n">bit</span>
       <span class="n">add</span> <span class="s2">&quot;bits 32&quot;</span> <span class="n">at</span> <span class="n">beginning</span> <span class="n">of</span> <span class="n">an</span> <span class="n">nasm</span> <span class="n">source</span> <span class="n">file</span>
 
 <span class="n">we</span> <span class="n">can</span> <span class="n">examine</span> <span class="n">the</span> <span class="n">output</span> <span class="n">using</span> <span class="n">hd</span><span class="p">(</span><span class="n">HexDump</span><span class="p">)</span>
@@ -77,7 +78,7 @@ where 0x41 represents ASCII A, 2 is green and 8 is dark grey color.</p>
 
 
 <span class="n">In</span> <span class="nb">next</span> <span class="n">few</span> <span class="n">examples</span> <span class="n">im</span> <span class="n">using</span> <span class="s1">&#39;a&#39;</span> <span class="k">as</span> <span class="p">(</span><span class="n">labeled</span> <span class="n">memory</span> <span class="n">address</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">register</span><span class="p">)</span>
-<span class="n">mov</span> <span class="n">a</span><span class="p">,</span><span class="mh">0x1</span>  <span class="p">;</span><span class="n">Move</span> <span class="nb">hex</span> <span class="s1">&#39;1&#39;</span> <span class="n">to</span> <span class="s1">&#39;a&#39;</span>
+<span class="n">mov</span> <span class="n">a</span><span class="p">,</span><span class="mh">0x1</span>    <span class="p">;</span><span class="n">Move</span> <span class="nb">hex</span> <span class="s1">&#39;1&#39;</span> <span class="n">to</span> <span class="s1">&#39;a&#39;</span>
 <span class="n">mov</span> <span class="n">a</span><span class="p">,[</span><span class="mh">0x1</span><span class="p">]</span>  <span class="p">;</span><span class="n">Move</span> <span class="n">value</span> <span class="n">on</span> <span class="n">location</span> <span class="s1">&#39;0x1&#39;</span> <span class="n">to</span> <span class="s1">&#39;a&#39;</span>
 </pre></div>
 </div>
@@ -90,24 +91,24 @@ where 0x41 represents ASCII A, 2 is green and 8 is dark grey color.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">add</span> <span class="n">a</span> <span class="p">;</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="mh">0x1</span> <span class="o">|</span> <span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">add</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="p">;</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="n">b</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>add a   ;a=a+0x1 | (a=a+1)
+add a,b ;a=a+b
 
-<span class="n">sub</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="p">;</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="o">-</span><span class="n">b</span>
+sub a,b ;a=a-b
 
-<span class="p">;</span><span class="n">To</span> <span class="n">multiply</span> <span class="n">we</span> <span class="n">need</span> <span class="n">to</span> <span class="n">use</span> <span class="n">eax</span>
-<span class="n">mov</span> <span class="n">eax</span><span class="p">,</span><span class="mi">5</span> <span class="p">;</span> <span class="n">eax</span> <span class="o">=</span> <span class="mi">5</span> <span class="p">(</span><span class="n">eax</span> <span class="ow">is</span> <span class="n">acc</span> <span class="n">used</span> <span class="n">by</span> <span class="n">multiplication</span><span class="p">)</span>
-<span class="n">imul</span> <span class="n">eax</span><span class="p">,</span><span class="mi">2</span> <span class="p">;</span> <span class="n">eax</span> <span class="o">=</span> <span class="n">eax</span><span class="o">*</span><span class="mi">2</span>
-<span class="p">;</span><span class="n">imul</span> <span class="n">Performs</span> <span class="n">singed</span> <span class="n">multiply</span><span class="p">,</span> <span class="n">we</span> <span class="n">can</span> <span class="n">also</span> <span class="n">use</span> <span class="n">mul</span> <span class="n">to</span> <span class="n">perform</span> <span class="n">unsigned</span> <span class="n">mult</span><span class="o">.</span>
+;To multiply we need to use eax
+mov eax,5  ; eax = 5 (eax is acc used by multiplication)
+imul eax,2 ; eax = eax*2
+;imul Performs singed multiply, we can also use mul to perform unsigned mult.
 
-<span class="p">;</span> <span class="n">Divsion</span>
-<span class="n">mov</span> <span class="n">eax</span><span class="p">,</span> <span class="mi">5</span> <span class="p">;</span><span class="n">eax</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">cdq</span>
-<span class="n">idiv</span> <span class="mi">2</span> <span class="p">;</span><span class="n">Perform</span> <span class="n">division</span><span class="p">,</span><span class="n">store</span> <span class="n">result</span> <span class="ow">in</span> <span class="s1">&#39;eax&#39;</span> <span class="ow">and</span> <span class="n">store</span> <span class="n">reminder</span> <span class="ow">in</span> <span class="s1">&#39;edx&#39;</span>
-<span class="n">mov</span> <span class="n">result</span><span class="p">,</span><span class="n">eax</span> <span class="p">;</span><span class="n">result</span> <span class="o">=</span> <span class="n">edx</span>  <span class="o">-&gt;</span> <span class="n">result</span><span class="o">==</span><span class="mi">2</span>
-<span class="n">mov</span> <span class="n">reminder</span><span class="p">,</span><span class="n">edx</span> <span class="p">;</span><span class="n">reminder</span><span class="o">=</span><span class="n">edx</span> <span class="o">-&gt;</span> <span class="n">reminder</span> <span class="o">==</span> <span class="mi">1</span>
+; Divsion
+mov eax, 5       ;eax = 5
+cdq              ;?
+idiv 2           ;Perform division,store result in &#39;eax&#39; and store reminder in &#39;edx&#39;
+mov result,eax   ;result = edx  -&gt; result==2
+mov reminder,edx ;reminder=edx -&gt; reminder == 1
 
-<span class="p">;</span> <span class="n">So</span> <span class="n">basicly</span> <span class="kn">from</span> <span class="nn">Division</span> <span class="n">we</span> <span class="n">can</span> <span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="ow">and</span> <span class="s1">&#39;%&#39;</span> <span class="k">as</span> <span class="n">result</span>
+So basicly from Division we can get &#39;/&#39; and &#39;%&#39; as result
 </pre></div>
 </div>
 <table border="1" class="docutils">
@@ -150,7 +151,7 @@ shifting</td>
 </tbody>
 </table>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">;</span> <span class="n">LEFT</span> <span class="p">(</span><span class="n">sal</span><span class="p">,</span><span class="n">shl</span> <span class="o">-</span><span class="n">google</span> <span class="n">diferences</span><span class="p">)</span>
-<span class="n">mov</span> <span class="n">eax</span><span class="p">,</span><span class="mi">5</span> <span class="p">;</span><span class="n">eax</span> <span class="o">=</span> <span class="mi">5</span> <span class="p">(</span><span class="n">eax</span> <span class="o">=</span> <span class="mi">0101</span><span class="o">***</span><span class="p">)</span>
+<span class="n">mov</span> <span class="n">eax</span><span class="p">,</span><span class="mi">5</span>   <span class="p">;</span><span class="n">eax</span> <span class="o">=</span> <span class="mi">5</span> <span class="p">(</span><span class="n">eax</span> <span class="o">=</span> <span class="mi">0101</span><span class="o">***</span><span class="p">)</span>
 <span class="p">;</span> <span class="o">***</span><span class="n">Of</span> <span class="n">course</span> <span class="k">if</span> <span class="n">it</span> <span class="n">was</span> <span class="mi">16</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">64</span> <span class="n">bit</span> <span class="n">it</span> <span class="n">would</span> <span class="n">have</span> <span class="n">more</span> <span class="mi">0</span>
 <span class="n">shl</span> <span class="n">eax</span><span class="p">,</span><span class="mh">0x8</span> <span class="p">;</span><span class="n">eax</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span> <span class="p">,</span> <span class="n">shift</span> <span class="n">eax</span> <span class="mi">8</span> <span class="n">bits</span> <span class="n">to</span> <span class="n">left</span>
 

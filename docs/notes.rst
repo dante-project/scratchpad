@@ -27,10 +27,11 @@ x86 Assembly
     Lets make some test files
     > nano test.asm
     > nasm -f bin test.asm -o test  (apt-get nasm) 
-    -f specifies the file format of the output file(-o)
-       in this case its bin(flat binary output without any extra information
-       ,as in assembly code -> machine code(as is, without overhead of metadata) 
-    Note: using bin format puts nasm by default into 16-bit mode, to enable 32bit
+       -f specifies the file format of the output file(-o)
+       in this case its bin(flat binary output without any extra information,
+       as in assembly code -> machine code(as is, without overhead of metadata) 
+    
+	Note: using bin format puts nasm by default into 16-bit mode, to enable 32bit
           add "bits 32" at beginning of an nasm source file
 
     we can examine the output using hd(HexDump) 
@@ -42,7 +43,7 @@ x86 Assembly
 
 
     In next few examples im using 'a' as (labeled memory address)/(register)
-    mov a,0x1  ;Move hex '1' to 'a'
+    mov a,0x1    ;Move hex '1' to 'a'
     mov a,[0x1]  ;Move value on location '0x1' to 'a'
 
 +------+
@@ -50,24 +51,24 @@ x86 Assembly
 +------+
 ::
 
-    add a ;a=a+0x1 | (a=a+1)
+    add a   ;a=a+0x1 | (a=a+1)
     add a,b ;a=a+b
 
     sub a,b ;a=a-b
 
     ;To multiply we need to use eax
-    mov eax,5 ; eax = 5 (eax is acc used by multiplication)
+    mov eax,5  ; eax = 5 (eax is acc used by multiplication)
     imul eax,2 ; eax = eax*2
     ;imul Performs singed multiply, we can also use mul to perform unsigned mult.
 
     ; Divsion
-    mov eax, 5 ;eax = 5
-    cdq
-    idiv 2 ;Perform division,store result in 'eax' and store reminder in 'edx'
-    mov result,eax ;result = edx  -> result==2
+    mov eax, 5       ;eax = 5
+    cdq              ;?
+    idiv 2           ;Perform division,store result in 'eax' and store reminder in 'edx'
+    mov result,eax   ;result = edx  -> result==2
     mov reminder,edx ;reminder=edx -> reminder == 1
 
-    ; So basicly from Division we can get '/' and '%' as result
+    So basicly from Division we can get '/' and '%' as result
 
 +-------+
 | Logic |
@@ -100,7 +101,7 @@ x86 Assembly
 ::
 
     ; LEFT (sal,shl -google diferences)
-    mov eax,5 ;eax = 5 (eax = 0101***)
+    mov eax,5   ;eax = 5 (eax = 0101***)
     ; ***Of course if it was 16,32,64 bit it would have more 0
     shl eax,0x8 ;eax << 8 , shift eax 8 bits to left
 
