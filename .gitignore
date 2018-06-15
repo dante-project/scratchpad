@@ -91,5 +91,6 @@ build
 .vagrant/
 *.box
 
-### sphinx build folder ###
-#_build
+### sphinx ###
+doctrees/
+.buildinfo
