@@ -1,0 +1,366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>KetOS &#8212; test proj 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="test proj 0.1 documentation" href="#" />
+    <link rel="next" title="Welcome to test proj’s documentation!" href="kernel.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ketos">
+<h1>KetOS<a class="headerlink" href="#ketos" title="Permalink to this headline">¶</a></h1>
+<p>KetOS is simple OS written in modern C++.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+culpa qui officia deserunt mollit anim id est laborum.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Tilu lilu.</p>
+</div>
+<div class="section" id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="text">
+<h3>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h3>
+<p>Starting address of memory-mapped I/O for the framebuffer is 0x000B8000. Highest 8 bits are ASCII value of the character, bits 7-4 the background and bits 3-0 foreground color.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Bit</span><span class="p">:</span>     <span class="o">|</span><span class="mi">15</span> <span class="mi">14</span> <span class="mi">13</span> <span class="mi">12</span> <span class="mi">11</span> <span class="mi">10</span> <span class="mi">9</span> <span class="mi">8</span><span class="o">|</span><span class="mi">7</span> <span class="mi">6</span> <span class="mi">5</span> <span class="mi">4</span><span class="o">|</span><span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span><span class="o">|</span>
+<span class="n">Content</span><span class="p">:</span> <span class="o">|</span> <span class="n">ASCII</span>               <span class="o">|</span> <span class="n">FG</span>    <span class="o">|</span> <span class="n">BG</span>    <span class="o">|</span>
+</pre></div>
+</div>
+<p>Say you want to write &#8216;A&#8217;(65,or 0x41) with green foreground and dark grey background(8) at place (0,0) you would write assembly code
+<code class="docutils literal"><span class="pre">mov</span> <span class="pre">[0x000B8000],</span> <span class="pre">0x4128</span></code>
+where 0x41 represents ASCII A, 2 is green and 8 is dark grey color.</p>
+<p>Second cell (0,1) is 0x000B8000 + 16 = 0x000B8010</p>
+<p>Colors: <a class="reference external" href="https://i.imgur.com/bLhytNP.png">https://i.imgur.com/bLhytNP.png</a></p>
+</div>
+<div class="section" id="x86-assembly">
+<h3>x86 Assembly<a class="headerlink" href="#x86-assembly" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Lets</span> <span class="n">make</span> <span class="n">some</span> <span class="n">test</span> <span class="n">files</span>
+<span class="o">&gt;</span> <span class="n">nano</span> <span class="n">test</span><span class="o">.</span><span class="n">asm</span>
+<span class="o">&gt;</span> <span class="n">nasm</span> <span class="o">-</span><span class="n">f</span> <span class="nb">bin</span> <span class="n">test</span><span class="o">.</span><span class="n">asm</span> <span class="o">-</span><span class="n">o</span> <span class="n">test</span>  <span class="p">(</span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">nasm</span><span class="p">)</span>
+<span class="o">-</span><span class="n">f</span> <span class="n">specifies</span> <span class="n">the</span> <span class="n">file</span> <span class="nb">format</span> <span class="n">of</span> <span class="n">the</span> <span class="n">output</span> <span class="n">file</span><span class="p">(</span><span class="o">-</span><span class="n">o</span><span class="p">)</span>
+   <span class="ow">in</span> <span class="n">this</span> <span class="n">case</span> <span class="n">its</span> <span class="nb">bin</span><span class="p">(</span><span class="n">flat</span> <span class="n">binary</span> <span class="n">output</span> <span class="n">without</span> <span class="nb">any</span> <span class="n">extra</span> <span class="n">information</span>
+   <span class="p">,</span><span class="k">as</span> <span class="ow">in</span> <span class="n">assembly</span> <span class="n">code</span> <span class="o">-&gt;</span> <span class="n">machine</span> <span class="n">code</span><span class="p">(</span><span class="k">as</span> <span class="ow">is</span><span class="p">,</span> <span class="n">without</span> <span class="n">overhead</span> <span class="n">of</span> <span class="n">metadata</span><span class="p">)</span>
+<span class="n">Note</span><span class="p">:</span> <span class="n">using</span> <span class="nb">bin</span> <span class="nb">format</span> <span class="n">puts</span> <span class="n">nasm</span> <span class="n">by</span> <span class="n">default</span> <span class="n">into</span> <span class="mi">16</span><span class="o">-</span><span class="n">bit</span> <span class="n">mode</span><span class="p">,</span> <span class="n">to</span> <span class="n">enable</span> <span class="mi">32</span><span class="n">bit</span>
+      <span class="n">add</span> <span class="s2">&quot;bits 32&quot;</span> <span class="n">at</span> <span class="n">beginning</span> <span class="n">of</span> <span class="n">an</span> <span class="n">nasm</span> <span class="n">source</span> <span class="n">file</span>
+
+<span class="n">we</span> <span class="n">can</span> <span class="n">examine</span> <span class="n">the</span> <span class="n">output</span> <span class="n">using</span> <span class="n">hd</span><span class="p">(</span><span class="n">HexDump</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">hd</span> <span class="n">test</span>
+<span class="mi">00000000</span> <span class="mi">66</span> <span class="n">ff</span> <span class="n">e0</span>            <span class="o">|</span><span class="n">f</span><span class="o">..|</span>
+<span class="mi">00000003</span>
+<span class="n">We</span> <span class="n">can</span> <span class="n">see</span> <span class="n">that</span> <span class="n">file</span> <span class="n">only</span> <span class="n">consists</span> <span class="n">of</span> <span class="mi">3</span> <span class="nb">bytes</span> <span class="p">:</span> <span class="mi">66</span> <span class="n">ff</span> <span class="n">e0</span><span class="p">,</span> <span class="n">which</span> <span class="ow">is</span> <span class="n">equivalent</span>
+<span class="n">to</span> <span class="n">the</span> <span class="n">instruction</span> <span class="n">jmp</span> <span class="n">eax</span>
+
+
+<span class="n">In</span> <span class="nb">next</span> <span class="n">few</span> <span class="n">examples</span> <span class="n">im</span> <span class="n">using</span> <span class="s1">&#39;a&#39;</span> <span class="k">as</span> <span class="p">(</span><span class="n">labeled</span> <span class="n">memory</span> <span class="n">address</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">register</span><span class="p">)</span>
+<span class="n">mov</span> <span class="n">a</span><span class="p">,</span><span class="mh">0x1</span>  <span class="p">;</span><span class="n">Move</span> <span class="nb">hex</span> <span class="s1">&#39;1&#39;</span> <span class="n">to</span> <span class="s1">&#39;a&#39;</span>
+<span class="n">mov</span> <span class="n">a</span><span class="p">,[</span><span class="mh">0x1</span><span class="p">]</span>  <span class="p">;</span><span class="n">Move</span> <span class="n">value</span> <span class="n">on</span> <span class="n">location</span> <span class="s1">&#39;0x1&#39;</span> <span class="n">to</span> <span class="s1">&#39;a&#39;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>calc</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">add</span> <span class="n">a</span> <span class="p">;</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="mh">0x1</span> <span class="o">|</span> <span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">add</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="p">;</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="n">b</span>
+
+<span class="n">sub</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="p">;</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="o">-</span><span class="n">b</span>
+
+<span class="p">;</span><span class="n">To</span> <span class="n">multiply</span> <span class="n">we</span> <span class="n">need</span> <span class="n">to</span> <span class="n">use</span> <span class="n">eax</span>
+<span class="n">mov</span> <span class="n">eax</span><span class="p">,</span><span class="mi">5</span> <span class="p">;</span> <span class="n">eax</span> <span class="o">=</span> <span class="mi">5</span> <span class="p">(</span><span class="n">eax</span> <span class="ow">is</span> <span class="n">acc</span> <span class="n">used</span> <span class="n">by</span> <span class="n">multiplication</span><span class="p">)</span>
+<span class="n">imul</span> <span class="n">eax</span><span class="p">,</span><span class="mi">2</span> <span class="p">;</span> <span class="n">eax</span> <span class="o">=</span> <span class="n">eax</span><span class="o">*</span><span class="mi">2</span>
+<span class="p">;</span><span class="n">imul</span> <span class="n">Performs</span> <span class="n">singed</span> <span class="n">multiply</span><span class="p">,</span> <span class="n">we</span> <span class="n">can</span> <span class="n">also</span> <span class="n">use</span> <span class="n">mul</span> <span class="n">to</span> <span class="n">perform</span> <span class="n">unsigned</span> <span class="n">mult</span><span class="o">.</span>
+
+<span class="p">;</span> <span class="n">Divsion</span>
+<span class="n">mov</span> <span class="n">eax</span><span class="p">,</span> <span class="mi">5</span> <span class="p">;</span><span class="n">eax</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">cdq</span>
+<span class="n">idiv</span> <span class="mi">2</span> <span class="p">;</span><span class="n">Perform</span> <span class="n">division</span><span class="p">,</span><span class="n">store</span> <span class="n">result</span> <span class="ow">in</span> <span class="s1">&#39;eax&#39;</span> <span class="ow">and</span> <span class="n">store</span> <span class="n">reminder</span> <span class="ow">in</span> <span class="s1">&#39;edx&#39;</span>
+<span class="n">mov</span> <span class="n">result</span><span class="p">,</span><span class="n">eax</span> <span class="p">;</span><span class="n">result</span> <span class="o">=</span> <span class="n">edx</span>  <span class="o">-&gt;</span> <span class="n">result</span><span class="o">==</span><span class="mi">2</span>
+<span class="n">mov</span> <span class="n">reminder</span><span class="p">,</span><span class="n">edx</span> <span class="p">;</span><span class="n">reminder</span><span class="o">=</span><span class="n">edx</span> <span class="o">-&gt;</span> <span class="n">reminder</span> <span class="o">==</span> <span class="mi">1</span>
+
+<span class="p">;</span> <span class="n">So</span> <span class="n">basicly</span> <span class="kn">from</span> <span class="nn">Division</span> <span class="n">we</span> <span class="n">can</span> <span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="ow">and</span> <span class="s1">&#39;%&#39;</span> <span class="k">as</span> <span class="n">result</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Logic</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">;</span> <span class="n">NEG</span>
+<span class="n">mov</span> <span class="n">a</span><span class="p">,</span><span class="mi">5</span>
+<span class="n">neg</span> <span class="n">a</span> <span class="p">;</span><span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="o">-</span><span class="n">a</span> <span class="p">,</span> <span class="n">that</span> <span class="n">means</span> <span class="n">a</span><span class="o">=</span> <span class="o">-</span><span class="n">a</span> <span class="p">,</span> <span class="ow">in</span> <span class="n">this</span> <span class="n">case</span> <span class="n">a</span><span class="o">==-</span><span class="mi">5</span>
+
+<span class="p">;</span> <span class="n">AND</span> <span class="p">(</span><span class="n">performes</span> <span class="s1">&#39;&amp;&#39;</span><span class="p">,</span> <span class="ow">not</span> <span class="s1">&#39;&amp;&amp;&#39;</span><span class="p">)</span>
+<span class="p">;</span><span class="n">That</span> <span class="n">means</span> <span class="k">if</span> <span class="n">we</span> <span class="n">have</span> <span class="mi">0101</span> <span class="ow">and</span> <span class="mi">0001</span> <span class="p">,</span><span class="n">result</span> <span class="n">would</span> <span class="n">be</span> <span class="mi">0001</span>
+<span class="p">;</span><span class="n">Few</span> <span class="n">more</span> <span class="n">examples</span><span class="p">:</span> <span class="mi">1111</span> <span class="o">&amp;</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">1000</span><span class="p">,</span><span class="mi">1111</span> <span class="o">&amp;</span> <span class="mi">1101</span> <span class="o">==</span> <span class="mi">1101</span>
+<span class="ow">and</span> <span class="n">eax</span><span class="p">,</span><span class="n">a</span>
+
+<span class="p">;</span> <span class="n">OR</span>
+<span class="p">;</span> <span class="n">Similar</span> <span class="n">to</span> <span class="ow">and</span> <span class="p">,</span> <span class="n">it</span> <span class="n">performs</span> <span class="n">bitwise</span> <span class="n">OR</span>
+<span class="p">;</span> <span class="mi">1100</span> <span class="o">|</span> <span class="mi">0000</span> <span class="o">==</span> <span class="mi">1100</span><span class="p">,</span><span class="mi">1010</span> <span class="o">|</span> <span class="mi">0101</span> <span class="o">==</span> <span class="mi">1111</span>
+<span class="ow">or</span> <span class="n">eax</span><span class="p">,</span><span class="n">a</span>
+
+<span class="p">;</span> <span class="n">XOR</span>
+<span class="p">;</span> <span class="k">if</span> <span class="mi">2</span> <span class="n">bits</span> <span class="n">are</span> <span class="n">diferend</span> <span class="n">resulting</span> <span class="n">bit</span> <span class="ow">is</span> <span class="mi">1</span>
+<span class="p">;</span> <span class="mi">1010</span> <span class="n">xor</span> <span class="mi">1001</span> <span class="o">==</span> <span class="mi">0011</span><span class="p">,</span> <span class="mi">1111</span> <span class="n">xor</span> <span class="mi">1101</span> <span class="o">==</span> <span class="mi">1101</span>
+<span class="n">xor</span> <span class="n">eax</span><span class="p">,</span><span class="n">a</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Bit
+shifting</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">;</span> <span class="n">LEFT</span> <span class="p">(</span><span class="n">sal</span><span class="p">,</span><span class="n">shl</span> <span class="o">-</span><span class="n">google</span> <span class="n">diferences</span><span class="p">)</span>
+<span class="n">mov</span> <span class="n">eax</span><span class="p">,</span><span class="mi">5</span> <span class="p">;</span><span class="n">eax</span> <span class="o">=</span> <span class="mi">5</span> <span class="p">(</span><span class="n">eax</span> <span class="o">=</span> <span class="mi">0101</span><span class="o">***</span><span class="p">)</span>
+<span class="p">;</span> <span class="o">***</span><span class="n">Of</span> <span class="n">course</span> <span class="k">if</span> <span class="n">it</span> <span class="n">was</span> <span class="mi">16</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">64</span> <span class="n">bit</span> <span class="n">it</span> <span class="n">would</span> <span class="n">have</span> <span class="n">more</span> <span class="mi">0</span>
+<span class="n">shl</span> <span class="n">eax</span><span class="p">,</span><span class="mh">0x8</span> <span class="p">;</span><span class="n">eax</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span> <span class="p">,</span> <span class="n">shift</span> <span class="n">eax</span> <span class="mi">8</span> <span class="n">bits</span> <span class="n">to</span> <span class="n">left</span>
+
+<span class="p">;</span> <span class="n">RIGHT</span> <span class="p">(</span><span class="n">sar</span><span class="p">,</span><span class="n">shl</span> <span class="o">-</span><span class="n">google</span> <span class="n">diferences</span><span class="p">)</span>
+<span class="n">mov</span> <span class="n">eax</span><span class="p">,</span><span class="mi">5</span>
+<span class="n">shr</span> <span class="n">eax</span><span class="p">,</span><span class="mh">0x8</span> <span class="p">;</span><span class="n">eax</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">,</span> <span class="n">shift</span> <span class="n">eax</span> <span class="mi">8</span> <span class="n">bits</span> <span class="n">to</span> <span class="n">right</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>stack</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">push</span> <span class="o">-&gt;</span> <span class="n">add</span> <span class="n">new</span> <span class="n">element</span> <span class="n">on</span> <span class="n">top</span> <span class="n">of</span> <span class="n">the</span> <span class="n">stack</span>
+<span class="o">&gt;</span> <span class="n">pop</span> <span class="o">-&gt;</span> <span class="n">remove</span> <span class="n">the</span> <span class="n">top</span><span class="o">-</span><span class="n">most</span> <span class="n">element</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">stack</span>
+
+<span class="n">x86</span> <span class="n">uses</span> <span class="s1">&#39;esp&#39;</span> <span class="n">register</span> <span class="n">to</span> <span class="n">point</span> <span class="n">to</span> <span class="n">the</span> <span class="n">top</span> <span class="n">of</span> <span class="n">the</span> <span class="n">stack</span><span class="p">(</span><span class="n">the</span> <span class="n">newest</span> <span class="n">element</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gnu-debugger">
+<h3>GNU Debugger<a class="headerlink" href="#gnu-debugger" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>make some test C file(simple hello world)</dt>
+<dd><code class="docutils literal"><span class="pre">gdb</span> <span class="pre">hello.c</span></code>
+(gdb) info target,
+Entry point - First code the program runs,
+example: &#8220;Entry point: 0x580&#8221;</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>same like &#8220;info target&#8221; but with more info</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">maint</span> <span class="pre">info</span> <span class="pre">sections</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>you can also display only few sections</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">maint</span> <span class="pre">info</span> <span class="pre">sections</span> <span class="pre">.text</span> <span class="pre">.data</span> <span class="pre">.bss</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>displat only sections that contain &#8220;CODE&#8221;</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">maint</span> <span class="pre">info</span> <span class="pre">sections</span> <span class="pre">CODE</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>list all function names and their loaded addresses you can use regex to filter also</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">info</span> <span class="pre">functions</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>list all global and static variable names you can use regex also</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">info</span> <span class="pre">variables</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>List current values in commonly used registers</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">info</span> <span class="pre">registers</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>display assembly code of a function</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">disassemble</span> <span class="pre">main</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>display assembly code with source code</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">disassemble</span> <span class="pre">/s</span> <span class="pre">main</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>display assembly code with souece code and hex</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">disassemble</span> <span class="pre">/rs</span> <span class="pre">main</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>display function in a specific file</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">disassemble</span> <span class="pre">/rs</span> <span class="pre">'hello.c'::main</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>start running the program</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">r</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>instead of running from start to finish run until line 3</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">b</span> <span class="pre">3</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Proceed to the next statement,first line is output produced after executing that line, 2nd line shows where gdb stops currently</dt>
+<dd>(gdb) <code class="docutils literal"><span class="pre">n</span></code></dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="compiling-the-os">
+<h3>Compiling the OS<a class="headerlink" href="#compiling-the-os" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span>You need to have virtualbox and vagrant, then just run
+&gt; git clone git@github.com:dante-project/scratchpad.git
+&gt; cd scratchpad &amp;&amp; vagrant up
+
+The bootstrap.sh script will get executed on machines boot
+and install all the tools you need to compile the OS.
+It will also run makefiles and output os image in /home/build.
+
+To log into virtual machine run `vagrant ssh`, to exit the VM
+run `logout`, to shutdown the machine run `vagrant halt`, and
+finally to terminate use of resources on your machine (including
+virtual machines disks) run `vagrant destroy`.
+
+Running the os in emulator:
+you can load the iso in virtualbox you alredy have or install and use qemu
+&gt; sudo apt-get install qemu qemu-system-i386 grub-legacy xorriso
+
+
+# Extras
+# installing virtualbox and vagrant on Debian 9
+add stretch-backports main and contrib to your apt sources
+sudo apt install virtualbox
+wget https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb
+sudo dpkg -i vagrant_2.1.1_x86_64.deb
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">KetOS</a><ul>
+<li><a class="reference internal" href="#notes">Notes</a><ul>
+<li><a class="reference internal" href="#text">Text</a></li>
+<li><a class="reference internal" href="#x86-assembly">x86 Assembly</a></li>
+<li><a class="reference internal" href="#gnu-debugger">GNU Debugger</a></li>
+<li><a class="reference internal" href="#compiling-the-os">Compiling the OS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="kernel.html" title="next chapter">Welcome to test proj&#8217;s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, frainfreeze.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/index.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
