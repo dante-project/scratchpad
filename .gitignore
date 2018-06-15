@@ -90,3 +90,6 @@ build
 ### Vagrant ###
 .vagrant/
 *.box
+
+### sphinx build folder ###
+_build
