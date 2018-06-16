@@ -2,11 +2,10 @@
 echo -e " [+] fetching updates"
 apt-get update
 
-echo -e " [+] setting up tools"
+echo -e " [+] building i686 elf tools"
 cd /home/src
-/bin/bash setup.sh
+/bin/bash i686-elf-tools.sh
 
-echo -e " [+] building the kernel"
 #cmake .
 
 echo -e " [+] box up and running"
