@@ -18,6 +18,10 @@ cd /home/src
 
 #cmake .
 
+log echo -e " [+] building docs"
+cd /home/src/docs
+make html
+
 log echo -e " [+] box up and running"
 log echo -e " [+] you can log in using vagrant ssh"
 log date
