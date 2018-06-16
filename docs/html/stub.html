@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Compiling the OS &#8212; KetOS 0.1 documentation</title>
+    <title>? &#8212; KetOS 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -41,33 +41,20 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="compiling-the-os">
-<h1>Compiling the OS<a class="headerlink" href="#compiling-the-os" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-default"><div class="highlight"><pre><span></span>You need to have virtualbox and vagrant, then just run
-&gt; git clone git@github.com:dante-project/scratchpad.git
-&gt; cd scratchpad &amp;&amp; vagrant up
-
-The bootstrap.sh script will get executed on machines boot
-and install all the tools you need to compile the OS.
-It will also run makefiles and output os image in /home/build.
-
-To log into virtual machine run `vagrant ssh`, to exit the VM
-run `logout`, to shutdown the machine run `vagrant halt`, and
-finally to terminate use of resources on your machine (including
-virtual machines disks) run `vagrant destroy`.
-
-Running the os in emulator:
-you can load the iso in virtualbox you alredy have or install and use qemu
-&gt; sudo apt-get install qemu qemu-system-i386 grub-legacy xorriso
-
-
-# Extras
-# installing virtualbox and vagrant on Debian 9
-add stretch-backports main and contrib to your apt sources
+  <div class="section" id="id1">
+<h1>?<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>Running the os in emulator:</dt>
+<dd>you can load the iso in virtualbox you alredy have or install and use qemu
+&gt; sudo apt-get install qemu qemu-system-i386 grub-legacy xorriso</dd>
+</dl>
+<p>installing virtualbox and vagrant on Debian 9</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">add stretch-backports main and contrib to your apt sources
 sudo apt install virtualbox
-wget https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb
-sudo dpkg -i vagrant_2.1.1_x86_64.deb
-</pre></div>
+wget <a class="reference external" href="https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb">https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb</a>
+sudo dpkg -i vagrant_2.1.1_x86_64.deb</p>
 </div>
 </div>
 
