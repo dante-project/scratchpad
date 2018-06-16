@@ -3,28 +3,27 @@
 BINUTILS_VERSION=2.28
 GCC_VERSION=7.1.0
 GDB_VERSION=8.0
+OS=`uname`
+# Get absolute path, will spawn a subshell then exit so our pwd is retained
+SCRIPTROOT=$(cd "$(dirname $0)" && pwd)
+BUILD_DIR=$SCRIPTROOT/build-i686-elf
+mkdir -p build-i686-elf
+export PATH="$BUILD_DIR/output/bin:$PATH"
 
-BUILD_DIR="$HOME/build-i686-elf"
-export PATH="$BUILD_DIR/linux/output/bin:$PATH"
-
-mkdir -p $BUILD_DIR
-touch $BUILD_DIR/build.log
 set -e
 
 if [ $# -eq 0 ]
 then
-        args="binutils gcc gdb zip"
+        args="binutils gcc gdb"
 else
         args=$@
 fi
 
 function main {
-	log date
     installPackages
     installMXE
     downloadSources
     compileAll "linux"
-	log date
 }
 
 function installPackages {
@@ -33,9 +32,9 @@ function installPackages {
 
     sudo -E apt-get install git \
         autoconf automake autopoint bash bison bzip2 flex gettext\
-        git g++ gperf intltool libffi-dev libgdk-pixbuf2.0-dev \
+        g++ gperf intltool libffi-dev libgdk-pixbuf2.0-dev \
         libtool libltdl-dev libssl-dev libxml-parser-perl make \
-        openssl p7zip-full patch perl pkg-config python ruby scons \
+        openssl patch perl pkg-config python python3-sphinx scons \
         sed unzip wget xz-utils libtool-bin texinfo g++-multilib -y
 }
 
@@ -226,9 +225,9 @@ function echoColor {
 
 function log() {
     if [ "$QUIET" = "1" ]; then
-        "$@" >> $BUILD_DIR/build.log 2>&1
+        "$@" >> $SCRIPTROOT/status.log 2>&1
     else
-        "$@" 2>&1 | tee -a $BUILD_DIR/build.log
+        "$@" 2>&1 | tee -a $SCRIPTROOT/status.log
     fi
 }
 

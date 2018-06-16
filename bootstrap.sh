@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-touch status.log
 function log() {
     if [ "$QUIET" = "1" ]; then
         "$@" >> status.log 2>&1
@@ -8,18 +7,26 @@ function log() {
     fi
 }
 
+touch status.log
+:> status.log
 log date
+
 log echo -e " [+] fetching updates"
-apt-get update
+if [ `logname` = "vagrant" ]; then
+    apt-get update
+fi 
 
 log echo -e " [+] building i686 elf tools"
-cd /home/src
+if [ `logname` = "vagrant" ]; then
+    cd /home/src
+fi 
+
 /bin/bash i686-elf-tools.sh
 
 #cmake .
 
 log echo -e " [+] building docs"
-cd /home/src/docs
+cd docs
 make html
 
 log echo -e " [+] box up and running"
