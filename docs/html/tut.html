@@ -52,47 +52,38 @@
 <p>x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel&#8217;s 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term &#8220;x86&#8221; came into being because the names of several successors to Intel&#8217;s 8086 processor end in &#8220;86&#8221;, including the 80186, 80286, 80386 and 80486 processors. [1]</p>
 <div class="section" id="first-steps">
 <h2>First steps<a class="headerlink" href="#first-steps" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-gas"><div class="highlight"><pre><span></span><span class="na">.code16</span>
-<span class="na">.global</span> <span class="no">_start</span>
+<p>Small assembly code to demonstrate building bootable iso image.</p>
+<div class="highlight-gas"><div class="highlight"><pre><span></span><span class="na">.code16</span>                <span class="c">;tells GAS to output 16-bit code</span>
+<span class="no">.global</span> <span class="no">_start</span>
 <span class="nl">_start:</span>
-    <span class="nf">cli</span>
-    <span class="nf">mov</span> <span class="no">$msg</span><span class="p">,</span> <span class="nv">%si</span>
+    <span class="nf">cli</span>                <span class="c">;disable software interrupts</span>
+    <span class="no">mov</span> <span class="no">$msg</span><span class="p">,</span> <span class="nv">%si</span>
     <span class="nf">mov</span> <span class="no">$0x0e</span><span class="p">,</span> <span class="nv">%ah</span>
 <span class="nl">loop:</span>
     <span class="nf">lodsb</span>
     <span class="nf">or</span> <span class="nv">%al</span><span class="p">,</span> <span class="nv">%al</span>
     <span class="nf">jz</span> <span class="no">halt</span>
-    <span class="nf">int</span> <span class="no">$0x10</span>
-    <span class="nf">jmp</span> <span class="no">loop</span>
+    <span class="nf">int</span> <span class="no">$0x10</span>           <span class="c">;BIOS call tp print the chars</span>
+    <span class="no">jmp</span> <span class="no">loop</span>
 <span class="nl">halt:</span>
-    <span class="nf">hlt</span>
-<span class="nl">msg:</span>
+    <span class="nf">hlt</span>                 <span class="c">;halt the processor</span>
+<span class="no">msg</span><span class="p">:</span>
     <span class="na">.asciz</span> <span class="s">&quot;hello world&quot;</span>
-<span class="na">.org</span> <span class="mi">510</span>
-<span class="na">.word</span> <span class="mi">0xaa55</span>
+<span class="na">.org</span> <span class="mi">510</span>                <span class="c">;magic bytes</span>
+<span class="no">.word</span> <span class="mi">0xaa55</span>            <span class="c">;magic bytes</span>
 </pre></div>
 </div>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">echo</span> hlt &gt; a.asm
-nasm -f bin a.asm
-hd a
+<p>To compile the assembler you can run followinf commands:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>as -o main.o main.S
+ld --oformat binary -o kernel.bin -Ttext 0x7C00 main.o
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="development-environment">
-<h1>Development environment<a class="headerlink" href="#development-environment" title="Permalink to this headline">¶</a></h1>
-<p>We will be building and installing a lot of tools rather frequently and many things can go wrong.
-To make our life easier we can use virtual machines and to make everything even more hassle free,
-we can utilize virtual machine manager, such as vagrant.</p>
-<div class="section" id="building-the-box">
-<h2>Building the box<a class="headerlink" href="#building-the-box" title="Permalink to this headline">¶</a></h2>
-<p>Installing virtualbox and vagrant on Debian 9 is rather straightforward:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># add stretch-backports main and contrib to your apt sources</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">virtualbox</span>
-<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">releases</span><span class="o">.</span><span class="n">hashicorp</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">vagrant</span><span class="o">/</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">1</span><span class="o">/</span><span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
-<span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
-</pre></div>
-</div>
+<p>We have two important flags here:</p>
+<ol class="arabic simple">
+<li>&#8211;oformat binary: output raw binary assembly code, don&#8217;t warp it inside an ELF file as is the case for regular userland executables.</li>
+<li>-Ttext 0x7C00: we need to tell the linker ld where the code will be placed so that it will be able to access the memory.</li>
+</ol>
+<p>For this we would usually write a linker script. Now that we have the &#8220;kernel&#8221; we can build an iso.</p>
 </div>
 <div class="section" id="building-iso">
 <h2>Building ISO<a class="headerlink" href="#building-iso" title="Permalink to this headline">¶</a></h2>
@@ -102,7 +93,7 @@ we can utilize virtual machine manager, such as vagrant.</p>
 <span class="n">cp</span> <span class="n">kernel</span><span class="o">.</span><span class="n">elf</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span>             <span class="c1"># copy the kernel</span>
 </pre></div>
 </div>
-<p>A configuration file menu.lst for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:</p>
+<p>A <a class="reference external" href="https://www.gnu.org/software/grub/manual/legacy/Configuration.html#Configuration">configuration file</a> menu.lst for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:</p>
 <div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">default</span><span class="o">=</span><span class="mi">0</span>
 <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span>
 
@@ -119,7 +110,7 @@ we can utilize virtual machine manager, such as vagrant.</p>
   <span class="o">|--</span> <span class="n">kernel</span><span class="o">.</span><span class="n">elf</span>
 </pre></div>
 </div>
-<p>The ISO image can then be generated with the following command:</p>
+<p>Finally, make a ISO9660 image file like this:</p>
 <div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">genisoimage</span> <span class="o">-</span><span class="n">R</span>                              \
             <span class="o">-</span><span class="n">b</span> <span class="n">boot</span><span class="o">/</span><span class="n">grub</span><span class="o">/</span><span class="n">stage2_eltorito</span>    \
             <span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">emul</span><span class="o">-</span><span class="n">boot</span>                   \
@@ -132,8 +123,25 @@ we can utilize virtual machine manager, such as vagrant.</p>
             <span class="n">iso</span>
 </pre></div>
 </div>
-<p>For more information about the flags used in the command, see the manual for genisoimage.</p>
-<p>The ISO image os.iso now contains the kernel executable, the GRUB bootloader and the configuration file.</p>
+<p>For more information about the flags used in the command, see the manual for genisoimage.
+This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly into virtual machine.
+The ISO image contains the kernel executable, the GRUB bootloader and the configuration file.</p>
+</div>
+</div>
+<div class="section" id="development-environment">
+<h1>Development environment<a class="headerlink" href="#development-environment" title="Permalink to this headline">¶</a></h1>
+<p>We will be building and installing a lot of tools rather frequently and many things can go wrong.
+To make our life easier we can use virtual machines and to make everything even more hassle free,
+we can utilize virtual machine manager, such as vagrant.</p>
+<div class="section" id="building-the-box">
+<h2>Building the box<a class="headerlink" href="#building-the-box" title="Permalink to this headline">¶</a></h2>
+<p>Installing virtualbox and vagrant on Debian 9 is rather straightforward:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># add stretch-backports main and contrib to your apt sources</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">virtualbox</span>
+<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">releases</span><span class="o">.</span><span class="n">hashicorp</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">vagrant</span><span class="o">/</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">1</span><span class="o">/</span><span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
+<span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
+</pre></div>
+</div>
 <p>[1] <a class="reference external" href="https://en.wikipedia.org/wiki/X86">https://en.wikipedia.org/wiki/X86</a>
 <a class="reference external" href="https://www.gnu.org/software/grub/manual/legacy">https://www.gnu.org/software/grub/manual/legacy</a>
 <a class="reference external" href="https://littleosbook.github.io">https://littleosbook.github.io</a></p>
@@ -154,11 +162,11 @@ we can utilize virtual machine manager, such as vagrant.</p>
 <li><a class="reference internal" href="#">Introduction</a></li>
 <li><a class="reference internal" href="#basics">Basics</a><ul>
 <li><a class="reference internal" href="#first-steps">First steps</a></li>
+<li><a class="reference internal" href="#building-iso">Building ISO</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#development-environment">Development environment</a><ul>
 <li><a class="reference internal" href="#building-the-box">Building the box</a></li>
-<li><a class="reference internal" href="#building-iso">Building ISO</a></li>
 </ul>
 </li>
 </ul>

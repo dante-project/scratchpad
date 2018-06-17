@@ -15,52 +15,43 @@ x86 is a family of backward-compatible instruction set architectures based on th
 First steps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Small assembly code to demonstrate building bootable iso image.
 
 .. code-block:: gas
 
-  .code16
+  .code16                ;tells GAS to output 16-bit code
   .global _start
   _start:
-      cli
+      cli                ;disable software interrupts
       mov $msg, %si
       mov $0x0e, %ah
   loop:
       lodsb
       or %al, %al
       jz halt
-      int $0x10
+      int $0x10           ;BIOS call tp print the chars
       jmp loop
   halt:
-      hlt
+      hlt                 ;halt the processor
   msg:
       .asciz "hello world"
-  .org 510
-  .word 0xaa55
+  .org 510                ;magic bytes
+  .word 0xaa55            ;magic bytes
 
+To compile the assembler you can run followinf commands:
 
 .. code-block:: bash
 
-  echo hlt > a.asm
-  nasm -f bin a.asm
-  hd a
+  as -o main.o main.S
+  ld --oformat binary -o kernel.bin -Ttext 0x7C00 main.o
 
-Development environment
-=======================
-We will be building and installing a lot of tools rather frequently and many things can go wrong.
-To make our life easier we can use virtual machines and to make everything even more hassle free,
-we can utilize virtual machine manager, such as vagrant. 
+We have two important flags here:
 
-Building the box
-~~~~~~~~~~~~~~~~
-Installing virtualbox and vagrant on Debian 9 is rather straightforward:
+1.  --oformat binary: output raw binary assembly code, don't warp it inside an ELF file as is the case for regular userland executables.
 
-::
+2. -Ttext 0x7C00: we need to tell the linker ld where the code will be placed so that it will be able to access the memory.
 
-    # add stretch-backports main and contrib to your apt sources
-    sudo apt install virtualbox
-    wget https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb
-    sudo dpkg -i vagrant_2.1.1_x86_64.deb
-
+For this we would usually write a linker script. Now that we have the "kernel" we can build an iso.
 
 Building ISO 
 ~~~~~~~~~~~~
@@ -73,7 +64,7 @@ We will create the kernel ISO image with the program genisoimage. A folder must 
     cp kernel.elf iso/boot/             # copy the kernel
 
 
-A configuration file menu.lst for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:
+A `configuration file <https://www.gnu.org/software/grub/manual/legacy/Configuration.html#Configuration>`_ menu.lst for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:
 
 .. code::
 
@@ -94,7 +85,7 @@ Place the file menu.lst in the folder iso/boot/grub/. The contents of the iso fo
       | |-- stage2_eltorito
       |-- kernel.elf
 
-The ISO image can then be generated with the following command:
+Finally, make a ISO9660 image file like this: 
 
 .. code:: bash
 
@@ -110,9 +101,27 @@ The ISO image can then be generated with the following command:
                 iso
 
 For more information about the flags used in the command, see the manual for genisoimage.
+This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly into virtual machine.
+The ISO image contains the kernel executable, the GRUB bootloader and the configuration file.
 
-The ISO image os.iso now contains the kernel executable, the GRUB bootloader and the configuration file.
 
+
+Development environment
+=======================
+We will be building and installing a lot of tools rather frequently and many things can go wrong.
+To make our life easier we can use virtual machines and to make everything even more hassle free,
+we can utilize virtual machine manager, such as vagrant. 
+
+Building the box
+~~~~~~~~~~~~~~~~
+Installing virtualbox and vagrant on Debian 9 is rather straightforward:
+
+::
+
+    # add stretch-backports main and contrib to your apt sources
+    sudo apt install virtualbox
+    wget https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb
+    sudo dpkg -i vagrant_2.1.1_x86_64.deb
 
 [1] https://en.wikipedia.org/wiki/X86
 https://www.gnu.org/software/grub/manual/legacy
