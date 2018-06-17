@@ -52,7 +52,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'KetOS'
+project = 'KaTOS'
 copyright = '2018, frainfreeze, kegl'
 author = 'frainfreeze, kegl'
 
@@ -239,7 +239,7 @@ html_static_path = ['_static']
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'KetOSdoc'
+htmlhelp_basename = 'KaTOSdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -265,7 +265,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'KetOS.tex', 'KetOS Documentation',
+    (master_doc, 'KaTOS.tex', 'KaTOS Documentation',
      'frainfreeze, kegl', 'manual'),
 ]
 
@@ -307,7 +307,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'KetOS', 'KetOS Documentation',
+    (master_doc, 'KaTOS', 'KaTOS Documentation',
      [author], 1)
 ]
 
@@ -322,8 +322,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'KetOS', 'KetOS Documentation',
-     author, 'KetOS', 'KetOS - simple C++ Operating System.',
+    (master_doc, 'KaTOS', 'KaTOS Documentation',
+     author, 'KaTOS', 'KaTOS - simple C++ Operating System.',
      'Miscellaneous'),
 ]
 
