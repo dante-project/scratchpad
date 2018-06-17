@@ -1,5 +1,5 @@
 .. include:: ../README.rst
-.. include:: stub.rst
+.. include:: tut.rst
 .. include:: notes.rst
 
 

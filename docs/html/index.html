@@ -26,7 +26,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="top" title="KaTOS 0.1 documentation" href="#" />
-    <link rel="next" title="Welcome to test proj’s documentation!" href="kernel.html" />
+    <link rel="next" title="Notes" href="notes.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -55,8 +55,52 @@ It will also run makefiles and output OS image in /home/build.</p>
 <p class="first admonition-title">Note</p>
 <p class="last">To log into virtual machine run <cite>vagrant ssh</cite>, to exit the VM run <cite>logout</cite>, to shutdown the machine run <cite>vagrant halt</cite>, and finally to terminate use of resources on your machine (including virtual machines disks) run <cite>vagrant destroy</cite>.</p>
 </div>
-<div class="section" id="installing-virtualbox-and-vagrant-on-debian-9">
-<h2>Installing virtualbox and vagrant on Debian 9<a class="headerlink" href="#installing-virtualbox-and-vagrant-on-debian-9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Developing OS is complex task that requires very specific development environment and set of tools. Theoretically one could write an OS in any language he wants, however assembly, C and C++ are de facto languages for this kind of job.</p>
+<p>Our compiler suite of choice is GCC, build system cmake, and scripting language Bash. Everything is build and assembled inside virtual machine built by vagrant. Vagrant enables us to automate complete complex process of building cross compiler, os, linking and producing iso (even building documentation) into a single <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> command.</p>
+<p>All development and examples were ran on Debian 9. Fell free to work from vagrant machine if you don&#8217;t want to bother with setuping everything on your own host OS.</p>
+</div>
+<div class="section" id="basics">
+<h2>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h2>
+<p>x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel&#8217;s 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term &#8220;x86&#8221; came into being because the names of several successors to Intel&#8217;s 8086 processor end in &#8220;86&#8221;, including the 80186, 80286, 80386 and 80486 processors. [1]</p>
+<div class="section" id="first-steps">
+<h3>First steps<a class="headerlink" href="#first-steps" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-gas"><div class="highlight"><pre><span></span><span class="na">.code16</span>
+<span class="na">.global</span> <span class="no">_start</span>
+<span class="nl">_start:</span>
+    <span class="nf">cli</span>
+    <span class="nf">mov</span> <span class="no">$msg</span><span class="p">,</span> <span class="nv">%si</span>
+    <span class="nf">mov</span> <span class="no">$0x0e</span><span class="p">,</span> <span class="nv">%ah</span>
+<span class="nl">loop:</span>
+    <span class="nf">lodsb</span>
+    <span class="nf">or</span> <span class="nv">%al</span><span class="p">,</span> <span class="nv">%al</span>
+    <span class="nf">jz</span> <span class="no">halt</span>
+    <span class="nf">int</span> <span class="no">$0x10</span>
+    <span class="nf">jmp</span> <span class="no">loop</span>
+<span class="nl">halt:</span>
+    <span class="nf">hlt</span>
+<span class="nl">msg:</span>
+    <span class="na">.asciz</span> <span class="s">&quot;hello world&quot;</span>
+<span class="na">.org</span> <span class="mi">510</span>
+<span class="na">.word</span> <span class="mi">0xaa55</span>
+</pre></div>
+</div>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">echo</span> hlt &gt; a.asm
+nasm -f bin a.asm
+hd a
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="development-environment">
+<h2>Development environment<a class="headerlink" href="#development-environment" title="Permalink to this headline">¶</a></h2>
+<p>We will be building and installing a lot of tools rather frequently and many things can go wrong.
+To make our life easier we can use virtual machines and to make everything even more hassle free,
+we can utilize virtual machine manager, such as vagrant.</p>
+<div class="section" id="building-the-box">
+<h3>Building the box<a class="headerlink" href="#building-the-box" title="Permalink to this headline">¶</a></h3>
+<p>Installing virtualbox and vagrant on Debian 9 is rather straightforward:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># add stretch-backports main and contrib to your apt sources</span>
 <span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">virtualbox</span>
 <span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">releases</span><span class="o">.</span><span class="n">hashicorp</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">vagrant</span><span class="o">/</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">1</span><span class="o">/</span><span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
@@ -65,9 +109,9 @@ It will also run makefiles and output OS image in /home/build.</p>
 </div>
 </div>
 <div class="section" id="building-iso">
-<h2>Building ISO<a class="headerlink" href="#building-iso" title="Permalink to this headline">¶</a></h2>
+<h3>Building ISO<a class="headerlink" href="#building-iso" title="Permalink to this headline">¶</a></h3>
 <p>We will create the kernel ISO image with the program genisoimage. A folder must first be created that contains the files that will be on the ISO image. The following commands create the folder and copy the files to their correct places:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">grub</span>              <span class="c1"># create the folder structure</span>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">grub</span>              <span class="c1"># create the folder structure</span>
 <span class="n">cp</span> <span class="n">stage2_eltorito</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">grub</span><span class="o">/</span>   <span class="c1"># copy the bootloader</span>
 <span class="n">cp</span> <span class="n">kernel</span><span class="o">.</span><span class="n">elf</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span>             <span class="c1"># copy the kernel</span>
 </pre></div>
@@ -90,7 +134,7 @@ It will also run makefiles and output OS image in /home/build.</p>
 </pre></div>
 </div>
 <p>The ISO image can then be generated with the following command:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">genisoimage</span> <span class="o">-</span><span class="n">R</span>                              \
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">genisoimage</span> <span class="o">-</span><span class="n">R</span>                              \
             <span class="o">-</span><span class="n">b</span> <span class="n">boot</span><span class="o">/</span><span class="n">grub</span><span class="o">/</span><span class="n">stage2_eltorito</span>    \
             <span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">emul</span><span class="o">-</span><span class="n">boot</span>                   \
             <span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">load</span><span class="o">-</span><span class="n">size</span> <span class="mi">4</span>               \
@@ -104,11 +148,16 @@ It will also run makefiles and output OS image in /home/build.</p>
 </div>
 <p>For more information about the flags used in the command, see the manual for genisoimage.</p>
 <p>The ISO image os.iso now contains the kernel executable, the GRUB bootloader and the configuration file.</p>
+<p>[1] <a class="reference external" href="https://en.wikipedia.org/wiki/X86">https://en.wikipedia.org/wiki/X86</a>
+<a class="reference external" href="https://www.gnu.org/software/grub/manual/legacy">https://www.gnu.org/software/grub/manual/legacy</a>
+<a class="reference external" href="https://littleosbook.github.io">https://littleosbook.github.io</a></p>
 </div>
 <div class="section" id="notes">
-<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
 <div class="section" id="text">
-<h3>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h3>
+<h2>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h2>
 <p>Starting address of memory-mapped I/O for the framebuffer is 0x000B8000. Highest 8 bits are ASCII value of the character, bits 7-4 the background and bits 3-0 foreground color.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Bit</span><span class="p">:</span>     <span class="o">|</span><span class="mi">15</span> <span class="mi">14</span> <span class="mi">13</span> <span class="mi">12</span> <span class="mi">11</span> <span class="mi">10</span> <span class="mi">9</span> <span class="mi">8</span><span class="o">|</span><span class="mi">7</span> <span class="mi">6</span> <span class="mi">5</span> <span class="mi">4</span><span class="o">|</span><span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span><span class="o">|</span>
 <span class="n">Content</span><span class="p">:</span> <span class="o">|</span> <span class="n">ASCII</span>               <span class="o">|</span> <span class="n">FG</span>    <span class="o">|</span> <span class="n">BG</span>    <span class="o">|</span>
@@ -121,7 +170,7 @@ where 0x41 represents ASCII A, 2 is green and 8 is dark grey color.</p>
 <p>Colors: <a class="reference external" href="https://i.imgur.com/bLhytNP.png">https://i.imgur.com/bLhytNP.png</a></p>
 </div>
 <div class="section" id="x86-assembly">
-<h3>x86 Assembly<a class="headerlink" href="#x86-assembly" title="Permalink to this headline">¶</a></h3>
+<h2>x86 Assembly<a class="headerlink" href="#x86-assembly" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Lets</span> <span class="n">make</span> <span class="n">some</span> <span class="n">test</span> <span class="n">files</span>
 <span class="o">&gt;</span> <span class="n">nano</span> <span class="n">test</span><span class="o">.</span><span class="n">asm</span>
 <span class="o">&gt;</span> <span class="n">nasm</span> <span class="o">-</span><span class="n">f</span> <span class="nb">bin</span> <span class="n">test</span><span class="o">.</span><span class="n">asm</span> <span class="o">-</span><span class="n">o</span> <span class="n">test</span>  <span class="p">(</span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">nasm</span><span class="p">)</span>
@@ -240,7 +289,7 @@ shifting</td>
 </div>
 </div>
 <div class="section" id="gnu-debugger">
-<h3>GNU Debugger<a class="headerlink" href="#gnu-debugger" title="Permalink to this headline">¶</a></h3>
+<h2>GNU Debugger<a class="headerlink" href="#gnu-debugger" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><dl class="first docutils">
 <dt>make some test C file(simple hello world)</dt>
@@ -320,7 +369,6 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 </div>
 </div>
 </div>
-</div>
 
 
           </div>
@@ -329,19 +377,25 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="#">
-              <img class="logo" src="_static/cat.png" alt="Logo"/>
+              <img class="logo" src="_static/logo.gif" alt="Logo"/>
             </a></p>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">KaTOS</a><ul>
-<li><a class="reference internal" href="#installing-virtualbox-and-vagrant-on-debian-9">Installing virtualbox and vagrant on Debian 9</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#basics">Basics</a><ul>
+<li><a class="reference internal" href="#first-steps">First steps</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#development-environment">Development environment</a><ul>
+<li><a class="reference internal" href="#building-the-box">Building the box</a></li>
 <li><a class="reference internal" href="#building-iso">Building ISO</a></li>
-<li><a class="reference internal" href="#notes">Notes</a><ul>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#text">Text</a></li>
 <li><a class="reference internal" href="#x86-assembly">x86 Assembly</a></li>
 <li><a class="reference internal" href="#gnu-debugger">GNU Debugger</a></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -349,7 +403,7 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="kernel.html" title="next chapter">Welcome to test proj&#8217;s documentation!</a></li>
+      <li>Next: <a href="notes.html" title="next chapter">Notes</a></li>
   </ul></li>
 </ul>
 </div>
