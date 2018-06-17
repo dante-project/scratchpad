@@ -55,6 +55,56 @@ It will also run makefiles and output OS image in /home/build.</p>
 <p class="first admonition-title">Note</p>
 <p class="last">To log into virtual machine run <cite>vagrant ssh</cite>, to exit the VM run <cite>logout</cite>, to shutdown the machine run <cite>vagrant halt</cite>, and finally to terminate use of resources on your machine (including virtual machines disks) run <cite>vagrant destroy</cite>.</p>
 </div>
+<div class="section" id="installing-virtualbox-and-vagrant-on-debian-9">
+<h2>Installing virtualbox and vagrant on Debian 9<a class="headerlink" href="#installing-virtualbox-and-vagrant-on-debian-9" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># add stretch-backports main and contrib to your apt sources</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">virtualbox</span>
+<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">releases</span><span class="o">.</span><span class="n">hashicorp</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">vagrant</span><span class="o">/</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">1</span><span class="o">/</span><span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
+<span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-iso">
+<h2>Building ISO<a class="headerlink" href="#building-iso" title="Permalink to this headline">¶</a></h2>
+<p>We will create the kernel ISO image with the program genisoimage. A folder must first be created that contains the files that will be on the ISO image. The following commands create the folder and copy the files to their correct places:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">grub</span>              <span class="c1"># create the folder structure</span>
+<span class="n">cp</span> <span class="n">stage2_eltorito</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">grub</span><span class="o">/</span>   <span class="c1"># copy the bootloader</span>
+<span class="n">cp</span> <span class="n">kernel</span><span class="o">.</span><span class="n">elf</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span>             <span class="c1"># copy the kernel</span>
+</pre></div>
+</div>
+<p>A configuration file menu.lst for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">default</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">timeout</span><span class="o">=</span><span class="mi">0</span>
+
+<span class="n">title</span> <span class="n">os</span>
+<span class="n">kernel</span> <span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">elf</span>
+</pre></div>
+</div>
+<p>Place the file menu.lst in the folder iso/boot/grub/. The contents of the iso folder should now look like the following figure:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">iso</span>
+<span class="o">|--</span> <span class="n">boot</span>
+  <span class="o">|--</span> <span class="n">grub</span>
+  <span class="o">|</span> <span class="o">|--</span> <span class="n">menu</span><span class="o">.</span><span class="n">lst</span>
+  <span class="o">|</span> <span class="o">|--</span> <span class="n">stage2_eltorito</span>
+  <span class="o">|--</span> <span class="n">kernel</span><span class="o">.</span><span class="n">elf</span>
+</pre></div>
+</div>
+<p>The ISO image can then be generated with the following command:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">genisoimage</span> <span class="o">-</span><span class="n">R</span>                              \
+            <span class="o">-</span><span class="n">b</span> <span class="n">boot</span><span class="o">/</span><span class="n">grub</span><span class="o">/</span><span class="n">stage2_eltorito</span>    \
+            <span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">emul</span><span class="o">-</span><span class="n">boot</span>                   \
+            <span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">load</span><span class="o">-</span><span class="n">size</span> <span class="mi">4</span>               \
+            <span class="o">-</span><span class="n">A</span> <span class="n">os</span>                           \
+            <span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="n">charset</span> <span class="n">utf8</span>             \
+            <span class="o">-</span><span class="n">quiet</span>                          \
+            <span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">info</span><span class="o">-</span><span class="n">table</span>                \
+            <span class="o">-</span><span class="n">o</span> <span class="n">os</span><span class="o">.</span><span class="n">iso</span>                       \
+            <span class="n">iso</span>
+</pre></div>
+</div>
+<p>For more information about the flags used in the command, see the manual for genisoimage.</p>
+<p>The ISO image os.iso now contains the kernel executable, the GRUB bootloader and the configuration file.</p>
+</div>
 <div class="section" id="notes">
 <h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="text">
@@ -266,15 +316,6 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 </dl>
 </li>
 </ul>
-</div>
-<div class="section" id="installing-virtualbox-and-vagrant-on-debian-9">
-<h3>Installing virtualbox and vagrant on Debian 9<a class="headerlink" href="#installing-virtualbox-and-vagrant-on-debian-9" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">add</span> <span class="n">stretch</span><span class="o">-</span><span class="n">backports</span> <span class="n">main</span> <span class="ow">and</span> <span class="n">contrib</span> <span class="n">to</span> <span class="n">your</span> <span class="n">apt</span> <span class="n">sources</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">virtualbox</span>
-<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">releases</span><span class="o">.</span><span class="n">hashicorp</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">vagrant</span><span class="o">/</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">1</span><span class="o">/</span><span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
-<span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
-</pre></div>
-</div>
 <div class="toctree-wrapper compound">
 </div>
 </div>
@@ -290,11 +331,12 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">KetOS</a><ul>
+<li><a class="reference internal" href="#installing-virtualbox-and-vagrant-on-debian-9">Installing virtualbox and vagrant on Debian 9</a></li>
+<li><a class="reference internal" href="#building-iso">Building ISO</a></li>
 <li><a class="reference internal" href="#notes">Notes</a><ul>
 <li><a class="reference internal" href="#text">Text</a></li>
 <li><a class="reference internal" href="#x86-assembly">x86 Assembly</a></li>
 <li><a class="reference internal" href="#gnu-debugger">GNU Debugger</a></li>
-<li><a class="reference internal" href="#installing-virtualbox-and-vagrant-on-debian-9">Installing virtualbox and vagrant on Debian 9</a></li>
 </ul>
 </li>
 </ul>

@@ -1,6 +1,7 @@
 .. include:: ../README.rst
-.. include:: notes.rst
 .. include:: stub.rst
+.. include:: notes.rst
+
 
 .. toctree::
     :hidden:

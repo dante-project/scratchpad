@@ -29,6 +29,10 @@ log echo -e " [+] building docs"
 cd docs
 make html
 
-log echo -e " [+] box up and running"
-log echo -e " [+] you can log in using vagrant ssh"
+if [ `logname` = "vagrant" ]; then
+    log echo -e " [+] box up and running"
+	log echo -e " [+] you can log in using vagrant ssh"
+else
+	log echo -e " [+] Done!"
+fi 
 log date

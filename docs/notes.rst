@@ -1,8 +1,8 @@
 Notes
-==========
+~~~~~~~~
 
 Text
-~~~~
+====
 
 Starting address of memory-mapped I/O for the framebuffer is 0x000B8000. Highest 8 bits are ASCII value of the character, bits 7-4 the background and bits 3-0 foreground color.
 
@@ -20,7 +20,7 @@ Second cell (0,1) is 0x000B8000 + 16 = 0x000B8010
 Colors: https://i.imgur.com/bLhytNP.png
 
 x86 Assembly
-~~~~~~~~~~~~
+============
 
 ::
 
@@ -49,6 +49,7 @@ x86 Assembly
 +------+
 | calc |
 +------+
+
 ::
 
     add a   ;a=a+0x1 | (a=a+1)
@@ -73,6 +74,7 @@ x86 Assembly
 +-------+
 | Logic |
 +-------+
+
 ::
 
     ; NEG
@@ -98,6 +100,7 @@ x86 Assembly
 | Bit     |
 | shifting|
 +---------+
+
 ::
 
     ; LEFT (sal,shl -google diferences)
@@ -113,6 +116,7 @@ x86 Assembly
 +---------+
 |  stack  |
 +---------+
+
 ::
 
     > push -> add new element on top of the stack
@@ -121,7 +125,7 @@ x86 Assembly
     x86 uses 'esp' register to point to the top of the stack(the newest element)
 
 GNU Debugger
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+============
 
 -  make some test C file(simple hello world)
     ``gdb hello.c``
