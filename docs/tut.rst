@@ -56,7 +56,15 @@ projects root directory.
 
 Cross Compiler
 ~~~~~~~~~~~~~~
+An cross-compiler is a compiler that runs on platform A (the host), but generates executables for platform B (the target). 
+These two platforms may (but do not need to) differ in CPU, operating system, and/or executable format. In our case, 
+the host platform is our current operating system, and the target platform is the operating system we are building.
+
 .. image:: cross-compiler.png
+
+GCC is great open source compiler and we will use it as cross compiler for our OS. The GNU Compiler Collection is an advanced piece of software with many dependencies. We will also need Binutils which are collection of binary tools, since we are also interested in linker and assembler.
+
+Cross compiler building process is rather complex and lengthy process. See i686-elf-tools.sh for details.
 
 
 First steps

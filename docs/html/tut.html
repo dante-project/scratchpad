@@ -89,7 +89,12 @@ projects root directory.</p>
 </div>
 <div class="section" id="cross-compiler">
 <h2>Cross Compiler<a class="headerlink" href="#cross-compiler" title="Permalink to this headline">¶</a></h2>
+<p>An cross-compiler is a compiler that runs on platform A (the host), but generates executables for platform B (the target).
+These two platforms may (but do not need to) differ in CPU, operating system, and/or executable format. In our case,
+the host platform is our current operating system, and the target platform is the operating system we are building.</p>
 <img alt="_images/cross-compiler.png" src="_images/cross-compiler.png" />
+<p>GCC is great open source compiler and we will use it as cross compiler for our OS. The GNU Compiler Collection is an advanced piece of software with many dependencies. We will also need Binutils which are collection of binary tools, since we are also interested in linker and assembler.</p>
+<p>Cross compiler building process is rather complex and lengthy process. See i686-elf-tools.sh for details.</p>
 </div>
 <div class="section" id="first-steps">
 <h2>First steps<a class="headerlink" href="#first-steps" title="Permalink to this headline">¶</a></h2>
