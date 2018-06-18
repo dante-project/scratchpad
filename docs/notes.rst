@@ -125,7 +125,7 @@ x86 Assembly
     x86 uses 'esp' register to point to the top of the stack(the newest element)
 
 GNU Debugger
-~~~~
+~~~~~~~~~~~~~~~~
 
 -  make some test C file(simple hello world)
     ``gdb hello.c``

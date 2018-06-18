@@ -1,15 +1,62 @@
 Introduction
 =======================
 
-Developing OS is complex task that requires very specific development environment and set of tools. Theoretically one could write an OS in any language he wants, however assembly, C and C++ are de facto languages for this kind of job.
+Developing OS is complex task that requires very specific development environment and 
+set of tools. Theoretically one could write an OS in any language he wants, however assembly, 
+C and C++ are de facto languages for this kind of job.
 
-Our compiler suite of choice is GCC, build system cmake, and scripting language Bash. Everything is build and assembled inside virtual machine built by vagrant. Vagrant enables us to automate complete complex process of building cross compiler, os, linking and producing iso (even building documentation) into a single ``vagrant up`` command.
+Our compiler suite of choice is GCC, build system cmake, and scripting language Bash. 
+Everything is build and assembled inside virtual machine built by vagrant. Vagrant 
+enables us to automate complete complex process of building cross compiler, OS, linking 
+and producing iso (even building documentation) into a single ``vagrant up`` command.
 
-All development and examples were ran on Debian 9. Fell free to work from vagrant machine if you don't want to bother with setuping everything on your own host OS.
+All development and examples were ran on Debian 9. Feel free to work from vagrant machine 
+if you don't want to bother with setting up everything on your own host OS.
 
-Basics
+
+Development environment
 =======================
-x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel's 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term "x86" came into being because the names of several successors to Intel's 8086 processor end in "86", including the 80186, 80286, 80386 and 80486 processors. [1]
+Since we will be building and installing a lot of tools frequently many things could go wrong.
+To make our life easier we can use virtual machines, and to make everything even more hassle free,
+we can utilize virtual machine manager, such as vagrant. 
+
+Preparing the box
+~~~~~~~~~~~~~~~~~~~
+Installing virtualbox and vagrant on Debian 9 is rather straightforward:
+
+.. code:: bash
+
+    # add stretch-backports main and contrib to your apt sources
+    sudo apt install virtualbox
+    wget https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb
+    sudo dpkg -i vagrant_2.1.1_x86_64.deb
+
+Once we have the software we can write small vagrant script:
+
+.. code:: ruby
+
+  # -*- mode: ruby -*-
+  # vi: set ft=ruby :
+  Vagrant.configure("2") do |config|
+    config.vm.box = "generic/debian9"
+    config.vm.box_check_update = false
+    config.vm.synced_folder ".", "/home/src"
+    config.vm.provision :shell, path: "bootstrap.sh"
+  end
+
+Save it as Vagrantfile in the root of the project. This particular vagrant file downloads
+Debian 9 image, mounts its root directory under ``/home/src`` in the virtual machine and
+executes ``bootstrap.sh``. Shell script then invokes ``i686-elf-tools.sh`` script that 
+downloads necessary sources and compiles cross compiler. Once the compiler is built 
+bootstrap script invokes cmake that builds the OS itself, bootable iso and 
+documentation.
+
+Finally, starting whole building process is as simple as executing ``vargant up`` in the 
+projects root directory.
+
+Cross Compiler
+~~~~~~~~~~~~~~
+.. image:: cross-compiler.png
 
 
 First steps
@@ -17,41 +64,74 @@ First steps
 
 Small assembly code to demonstrate building bootable iso image.
 
-.. code-block:: gas
+.. code-block:: nasm
 
-  .code16                ;tells GAS to output 16-bit code
-  .global _start
-  _start:
-      cli                ;disable software interrupts
-      mov $msg, %si
-      mov $0x0e, %ah
-  loop:
-      lodsb
-      or %al, %al
-      jz halt
-      int $0x10           ;BIOS call tp print the chars
-      jmp loop
-  halt:
-      hlt                 ;halt the processor
-  msg:
-      .asciz "hello world"
-  .org 510                ;magic bytes
-  .word 0xaa55            ;magic bytes
+    global loader                   ; the entry symbol for ELF
 
-To compile the assembler you can run following commands:
+    MAGIC_NUMBER equ 0x1BADB002     ; define the magic number constant
+    FLAGS        equ 0x0            ; multiboot flags
+    CHECKSUM     equ -MAGIC_NUMBER  ; calculate the checksum
+                                    ; (magic number + checksum + flags should equal 0)
+
+    section .text:                  ; start of the text (code) section
+    align 4                         ; the code must be 4 byte aligned
+        dd MAGIC_NUMBER             ; write the magic number to the machine code,
+        dd FLAGS                    ; the flags,
+        dd CHECKSUM                 ; and the checksum
+
+    loader:                         ; the loader label (defined as entry point in linker script)
+        mov eax, 0xCAFEBABE         ; place the number 0xCAFEBABE in the register eax
+    .loop:
+        jmp .loop                   ; loop forever
+
+The file loader.s can be compiled into a 32 bits ELF [18] object file with the following command:
 
 .. code-block:: bash
 
-  as -o main.o main.S
-  ld --oformat binary -o kernel.bin -Ttext 0x7C00 main.o
+    nasm -f elf32 loader.s
 
-We have two important flags here:
+The code must now be linked to produce an executable file, which requires some extra thought 
+compared to when linking most programs. We want GRUB to load the kernel at a memory address 
+larger than or equal to 0x00100000 (1 megabyte (MB)), because addresses lower than 1 MB are 
+used by GRUB itself, BIOS and memory-mapped I/O. Therefore, the following linker script is 
+needed (written for GNU LD):
 
-1.  --oformat binary: output raw binary assembly code, don't warp it inside an ELF file as is the case for regular userland executables.
+.. code::
 
-2. -Ttext 0x7C00: we need to tell the linker ld where the code will be placed so that it will be able to access the memory.
+  ENTRY(loader)                /* the name of the entry label */
+  
+  SECTIONS {
+      . = 0x00100000;          /* the code should be loaded at 1 MB */
+  
+      .text ALIGN (0x1000) :   /* align at 4 KB */
+      {
+          *(.text)             /* all text sections from all files */
+      }
+  
+      .rodata ALIGN (0x1000) : /* align at 4 KB */
+      {
+          *(.rodata*)          /* all read-only data sections from all files */
+      }
+  
+      .data ALIGN (0x1000) :   /* align at 4 KB */
+      {
+          *(.data)             /* all data sections from all files */
+      }
+  
+      .bss ALIGN (0x1000) :    /* align at 4 KB */
+      {
+          *(COMMON)            /* all COMMON sections from all files */
+          *(.bss)              /* all bss sections from all files */
+      }
+  }
 
-For this we would usually write a linker script. Now that we have the "kernel" we can build an iso.
+
+Save the linker script into a file called link.ld. The executable can now be linked with 
+the following command:
+
+.. code-block:: bash
+
+    ld -T link.ld -melf_i386 loader.o -o kernel.elf
 
 If you have GRUB installed, you can check whether a file has a valid Multiboot version 1 header, 
 which is the case for our kernel. It's important that the Multiboot header is within the first 
@@ -62,12 +142,11 @@ you try to boot it. This code fragment will help you diagnose such cases:
 
 .. code:: bash
 
-  grub-file --is-x86-multiboot
+  grub-file --is-x86-multiboot kernel.elf
 
 Grub-file is quiet but will exit 0 (successfully) if it is a valid multiboot kernel and exit 1
 (unsuccessfully) otherwise. You can type ``echo $?`` in your shell immediately afterwards to see 
 the exit status. 
-
 
 Building ISO 
 ~~~~~~~~~~~~
@@ -120,56 +199,39 @@ For more information about the flags used in the command, see the manual for gen
 This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly into virtual machine.
 The ISO image contains the kernel executable, the GRUB bootloader and the configuration file.
 
-To run the OS in qemu emulator executable
+To run the OS in QEMU emulator execute:
 
 .. code:: bash
 
     qemu-system-i386 -cdrom os.iso 
 
-Development environment
+
+Basics
 =======================
-We will be building and installing a lot of tools rather frequently and many things can go wrong.
-To make our life easier we can use virtual machines and to make everything even more hassle free,
-we can utilize virtual machine manager, such as vagrant. 
+x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel's 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term "x86" came into being because the names of several successors to Intel's 8086 processor end in "86", including the 80186, 80286, 80386 and 80486 processors. [1]
 
-Preparing the box
-~~~~~~~~~~~~~~~~~~~
-Installing virtualbox and vagrant on Debian 9 is rather straightforward:
 
-.. code:: bash
+Bootloader
+~~~~~~~~~~~
+tratra
 
-    # add stretch-backports main and contrib to your apt sources
-    sudo apt install virtualbox
-    wget https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb
-    sudo dpkg -i vagrant_2.1.1_x86_64.deb
 
-Once we have the software we can write small vagrant script:
+FooBar
+~~~~~~~~~~~
+tratra
 
-.. code:: ruby
 
-  # -*- mode: ruby -*-
-  # vi: set ft=ruby :
-  Vagrant.configure("2") do |config|
-    config.vm.box = "generic/debian9"
-    config.vm.box_check_update = false
-    config.vm.synced_folder ".", "/home/src"
-    config.vm.provision :shell, path: "bootstrap.sh"
-  end
+Spam
+~~~~~~~~~~~
+tratra
 
-Save it as Vagrantfile in the root of the project. This particular vagrant file downloads
-Debian 9 image, mounts its root directory under ``/home/src`` in the virtual machine and
-executes ``bootstrap.sh``. Shell script then invokes ``i686-elf-tools.sh`` script that 
-downloads necessary sources and compiles cross compiler. Once the compiler is built 
-bootstrap script invokes cmake that builds the OS itself, builds bootable iso and 
-documentation.
 
-Finally, starting whole building process is as simple as executing ``vargant up`` in the 
-projects root directory.
+Spaz
+~~~~~~~~~~~
+tratra
 
-Cross Compiler
-~~~~~~~~~~~~~~
-.. image:: cross-compiler.png
-
+References
+~~~~~~~~~~~
 
 1. https://en.wikipedia.org/wiki/X86
 2. https://www.gnu.org/software/grub/manual/legacy

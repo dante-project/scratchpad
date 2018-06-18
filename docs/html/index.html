@@ -57,54 +57,125 @@ It will also run makefiles and output OS image in /home/build.</p>
 </div>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>Developing OS is complex task that requires very specific development environment and set of tools. Theoretically one could write an OS in any language he wants, however assembly, C and C++ are de facto languages for this kind of job.</p>
-<p>Our compiler suite of choice is GCC, build system cmake, and scripting language Bash. Everything is build and assembled inside virtual machine built by vagrant. Vagrant enables us to automate complete complex process of building cross compiler, os, linking and producing iso (even building documentation) into a single <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> command.</p>
-<p>All development and examples were ran on Debian 9. Fell free to work from vagrant machine if you don&#8217;t want to bother with setuping everything on your own host OS.</p>
+<p>Developing OS is complex task that requires very specific development environment and
+set of tools. Theoretically one could write an OS in any language he wants, however assembly,
+C and C++ are de facto languages for this kind of job.</p>
+<p>Our compiler suite of choice is GCC, build system cmake, and scripting language Bash.
+Everything is build and assembled inside virtual machine built by vagrant. Vagrant
+enables us to automate complete complex process of building cross compiler, OS, linking
+and producing iso (even building documentation) into a single <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> command.</p>
+<p>All development and examples were ran on Debian 9. Feel free to work from vagrant machine
+if you don&#8217;t want to bother with setting up everything on your own host OS.</p>
 </div>
-<div class="section" id="basics">
-<h2>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h2>
-<p>x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel&#8217;s 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term &#8220;x86&#8221; came into being because the names of several successors to Intel&#8217;s 8086 processor end in &#8220;86&#8221;, including the 80186, 80286, 80386 and 80486 processors. [1]</p>
+<div class="section" id="development-environment">
+<h2>Development environment<a class="headerlink" href="#development-environment" title="Permalink to this headline">¶</a></h2>
+<p>Since we will be building and installing a lot of tools frequently many things could go wrong.
+To make our life easier we can use virtual machines, and to make everything even more hassle free,
+we can utilize virtual machine manager, such as vagrant.</p>
+<div class="section" id="preparing-the-box">
+<h3>Preparing the box<a class="headerlink" href="#preparing-the-box" title="Permalink to this headline">¶</a></h3>
+<p>Installing virtualbox and vagrant on Debian 9 is rather straightforward:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="c1"># add stretch-backports main and contrib to your apt sources</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">virtualbox</span>
+<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">releases</span><span class="o">.</span><span class="n">hashicorp</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">vagrant</span><span class="o">/</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">1</span><span class="o">/</span><span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
+<span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
+</pre></div>
+</div>
+<p>Once we have the software we can write small vagrant script:</p>
+<div class="code ruby highlight-default"><div class="highlight"><pre><span></span><span class="c1"># -*- mode: ruby -*-</span>
+<span class="c1"># vi: set ft=ruby :</span>
+<span class="n">Vagrant</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span> <span class="n">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="s2">&quot;generic/debian9&quot;</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_check_update</span> <span class="o">=</span> <span class="n">false</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">synced_folder</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/src&quot;</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">provision</span> <span class="p">:</span><span class="n">shell</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="s2">&quot;bootstrap.sh&quot;</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+<p>Save it as Vagrantfile in the root of the project. This particular vagrant file downloads
+Debian 9 image, mounts its root directory under <code class="docutils literal"><span class="pre">/home/src</span></code> in the virtual machine and
+executes <code class="docutils literal"><span class="pre">bootstrap.sh</span></code>. Shell script then invokes <code class="docutils literal"><span class="pre">i686-elf-tools.sh</span></code> script that
+downloads necessary sources and compiles cross compiler. Once the compiler is built
+bootstrap script invokes cmake that builds the OS itself, bootable iso and
+documentation.</p>
+<p>Finally, starting whole building process is as simple as executing <code class="docutils literal"><span class="pre">vargant</span> <span class="pre">up</span></code> in the
+projects root directory.</p>
+</div>
+<div class="section" id="cross-compiler">
+<h3>Cross Compiler<a class="headerlink" href="#cross-compiler" title="Permalink to this headline">¶</a></h3>
+<img alt="_images/cross-compiler.png" src="_images/cross-compiler.png" />
+</div>
 <div class="section" id="first-steps">
 <h3>First steps<a class="headerlink" href="#first-steps" title="Permalink to this headline">¶</a></h3>
 <p>Small assembly code to demonstrate building bootable iso image.</p>
-<div class="highlight-gas"><div class="highlight"><pre><span></span><span class="na">.code16</span>                <span class="c">;tells GAS to output 16-bit code</span>
-<span class="no">.global</span> <span class="no">_start</span>
-<span class="nl">_start:</span>
-    <span class="nf">cli</span>                <span class="c">;disable software interrupts</span>
-    <span class="no">mov</span> <span class="no">$msg</span><span class="p">,</span> <span class="nv">%si</span>
-    <span class="nf">mov</span> <span class="no">$0x0e</span><span class="p">,</span> <span class="nv">%ah</span>
-<span class="nl">loop:</span>
-    <span class="nf">lodsb</span>
-    <span class="nf">or</span> <span class="nv">%al</span><span class="p">,</span> <span class="nv">%al</span>
-    <span class="nf">jz</span> <span class="no">halt</span>
-    <span class="nf">int</span> <span class="no">$0x10</span>           <span class="c">;BIOS call tp print the chars</span>
-    <span class="no">jmp</span> <span class="no">loop</span>
-<span class="nl">halt:</span>
-    <span class="nf">hlt</span>                 <span class="c">;halt the processor</span>
-<span class="no">msg</span><span class="p">:</span>
-    <span class="na">.asciz</span> <span class="s">&quot;hello world&quot;</span>
-<span class="na">.org</span> <span class="mi">510</span>                <span class="c">;magic bytes</span>
-<span class="no">.word</span> <span class="mi">0xaa55</span>            <span class="c">;magic bytes</span>
+<div class="highlight-nasm"><div class="highlight"><pre><span></span><span class="k">global</span> <span class="nv">loader</span>                   <span class="c1">; the entry symbol for ELF</span>
+
+<span class="no">MAGIC_NUMBER</span><span class="kd"> equ</span> <span class="mh">0x1BADB002</span>     <span class="c1">; define the magic number constant</span>
+<span class="no">FLAGS</span><span class="kd">        equ</span> <span class="mh">0x0</span>            <span class="c1">; multiboot flags</span>
+<span class="no">CHECKSUM</span><span class="kd">     equ</span> <span class="o">-</span><span class="nv">MAGIC_NUMBER</span>  <span class="c1">; calculate the checksum</span>
+                                <span class="c1">; (magic number + checksum + flags should equal 0)</span>
+
+<span class="k">section</span> <span class="nv">.text</span><span class="p">:</span>                  <span class="c1">; start of the text (code) section</span>
+<span class="k">align</span> <span class="mi">4</span>                         <span class="c1">; the code must be 4 byte aligned</span>
+    <span class="kd">dd</span> <span class="nv">MAGIC_NUMBER</span>             <span class="c1">; write the magic number to the machine code,</span>
+    <span class="kd">dd</span> <span class="nv">FLAGS</span>                    <span class="c1">; the flags,</span>
+    <span class="kd">dd</span> <span class="nb">CH</span><span class="nv">ECKSUM</span>                 <span class="c1">; and the checksum</span>
+
+<span class="nl">loader:</span>                         <span class="c1">; the loader label (defined as entry point in linker script)</span>
+    <span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0xCAFEBABE</span>         <span class="c1">; place the number 0xCAFEBABE in the register eax</span>
+<span class="nl">.loop:</span>
+    <span class="nf">jmp</span> <span class="nv">.loop</span>                   <span class="c1">; loop forever</span>
 </pre></div>
 </div>
-<p>To compile the assembler you can run following commands:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>as -o main.o main.S
-ld --oformat binary -o kernel.bin -Ttext 0x7C00 main.o
+<p>The file loader.s can be compiled into a 32 bits ELF [18] object file with the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>nasm -f elf32 loader.s
 </pre></div>
 </div>
-<p>We have two important flags here:</p>
-<ol class="arabic simple">
-<li>&#8211;oformat binary: output raw binary assembly code, don&#8217;t warp it inside an ELF file as is the case for regular userland executables.</li>
-<li>-Ttext 0x7C00: we need to tell the linker ld where the code will be placed so that it will be able to access the memory.</li>
-</ol>
-<p>For this we would usually write a linker script. Now that we have the &#8220;kernel&#8221; we can build an iso.</p>
+<p>The code must now be linked to produce an executable file, which requires some extra thought
+compared to when linking most programs. We want GRUB to load the kernel at a memory address
+larger than or equal to 0x00100000 (1 megabyte (MB)), because addresses lower than 1 MB are
+used by GRUB itself, BIOS and memory-mapped I/O. Therefore, the following linker script is
+needed (written for GNU LD):</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">ENTRY</span><span class="p">(</span><span class="n">loader</span><span class="p">)</span>                <span class="o">/*</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">label</span> <span class="o">*/</span>
+
+<span class="n">SECTIONS</span> <span class="p">{</span>
+    <span class="o">.</span> <span class="o">=</span> <span class="mh">0x00100000</span><span class="p">;</span>          <span class="o">/*</span> <span class="n">the</span> <span class="n">code</span> <span class="n">should</span> <span class="n">be</span> <span class="n">loaded</span> <span class="n">at</span> <span class="mi">1</span> <span class="n">MB</span> <span class="o">*/</span>
+
+    <span class="o">.</span><span class="n">text</span> <span class="n">ALIGN</span> <span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span> <span class="p">:</span>   <span class="o">/*</span> <span class="n">align</span> <span class="n">at</span> <span class="mi">4</span> <span class="n">KB</span> <span class="o">*/</span>
+    <span class="p">{</span>
+        <span class="o">*</span><span class="p">(</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>             <span class="o">/*</span> <span class="nb">all</span> <span class="n">text</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
+    <span class="p">}</span>
+
+    <span class="o">.</span><span class="n">rodata</span> <span class="n">ALIGN</span> <span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span> <span class="p">:</span> <span class="o">/*</span> <span class="n">align</span> <span class="n">at</span> <span class="mi">4</span> <span class="n">KB</span> <span class="o">*/</span>
+    <span class="p">{</span>
+        <span class="o">*</span><span class="p">(</span><span class="o">.</span><span class="n">rodata</span><span class="o">*</span><span class="p">)</span>          <span class="o">/*</span> <span class="nb">all</span> <span class="n">read</span><span class="o">-</span><span class="n">only</span> <span class="n">data</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
+    <span class="p">}</span>
+
+    <span class="o">.</span><span class="n">data</span> <span class="n">ALIGN</span> <span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span> <span class="p">:</span>   <span class="o">/*</span> <span class="n">align</span> <span class="n">at</span> <span class="mi">4</span> <span class="n">KB</span> <span class="o">*/</span>
+    <span class="p">{</span>
+        <span class="o">*</span><span class="p">(</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>             <span class="o">/*</span> <span class="nb">all</span> <span class="n">data</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
+    <span class="p">}</span>
+
+    <span class="o">.</span><span class="n">bss</span> <span class="n">ALIGN</span> <span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span> <span class="p">:</span>    <span class="o">/*</span> <span class="n">align</span> <span class="n">at</span> <span class="mi">4</span> <span class="n">KB</span> <span class="o">*/</span>
+    <span class="p">{</span>
+        <span class="o">*</span><span class="p">(</span><span class="n">COMMON</span><span class="p">)</span>            <span class="o">/*</span> <span class="nb">all</span> <span class="n">COMMON</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
+        <span class="o">*</span><span class="p">(</span><span class="o">.</span><span class="n">bss</span><span class="p">)</span>              <span class="o">/*</span> <span class="nb">all</span> <span class="n">bss</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Save the linker script into a file called link.ld. The executable can now be linked with
+the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>ld -T link.ld -melf_i386 loader.o -o kernel.elf
+</pre></div>
+</div>
 <p>If you have GRUB installed, you can check whether a file has a valid Multiboot version 1 header,
 which is the case for our kernel. It&#8217;s important that the Multiboot header is within the first
 8 KiB of the actual program file at 4 byte alignment. This can potentially break later if you
 make a mistake in the boot assembly, the linker script, or anything else that might go wrong.
 If the header isn&#8217;t valid, GRUB will give an error that it can&#8217;t find a Multiboot header when
 you try to boot it. This code fragment will help you diagnose such cases:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">grub</span><span class="o">-</span><span class="n">file</span> <span class="o">--</span><span class="ow">is</span><span class="o">-</span><span class="n">x86</span><span class="o">-</span><span class="n">multiboot</span>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">grub</span><span class="o">-</span><span class="n">file</span> <span class="o">--</span><span class="ow">is</span><span class="o">-</span><span class="n">x86</span><span class="o">-</span><span class="n">multiboot</span> <span class="n">kernel</span><span class="o">.</span><span class="n">elf</span>
 </pre></div>
 </div>
 <p>Grub-file is quiet but will exit 0 (successfully) if it is a valid multiboot kernel and exit 1
@@ -152,49 +223,33 @@ the exit status.</p>
 <p>For more information about the flags used in the command, see the manual for genisoimage.
 This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly into virtual machine.
 The ISO image contains the kernel executable, the GRUB bootloader and the configuration file.</p>
-<p>To run the OS in qemu emulator executable</p>
+<p>To run the OS in QEMU emulator execute:</p>
 <div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">qemu</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">i386</span> <span class="o">-</span><span class="n">cdrom</span> <span class="n">os</span><span class="o">.</span><span class="n">iso</span>
 </pre></div>
 </div>
 </div>
 </div>
-<div class="section" id="development-environment">
-<h2>Development environment<a class="headerlink" href="#development-environment" title="Permalink to this headline">¶</a></h2>
-<p>We will be building and installing a lot of tools rather frequently and many things can go wrong.
-To make our life easier we can use virtual machines and to make everything even more hassle free,
-we can utilize virtual machine manager, such as vagrant.</p>
-<div class="section" id="preparing-the-box">
-<h3>Preparing the box<a class="headerlink" href="#preparing-the-box" title="Permalink to this headline">¶</a></h3>
-<p>Installing virtualbox and vagrant on Debian 9 is rather straightforward:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="c1"># add stretch-backports main and contrib to your apt sources</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">virtualbox</span>
-<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">releases</span><span class="o">.</span><span class="n">hashicorp</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">vagrant</span><span class="o">/</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">1</span><span class="o">/</span><span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
-<span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
-</pre></div>
+<div class="section" id="basics">
+<h2>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h2>
+<p>x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel&#8217;s 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term &#8220;x86&#8221; came into being because the names of several successors to Intel&#8217;s 8086 processor end in &#8220;86&#8221;, including the 80186, 80286, 80386 and 80486 processors. [1]</p>
+<div class="section" id="bootloader">
+<h3>Bootloader<a class="headerlink" href="#bootloader" title="Permalink to this headline">¶</a></h3>
+<p>tratra</p>
 </div>
-<p>Once we have the software we can write small vagrant script:</p>
-<div class="code ruby highlight-default"><div class="highlight"><pre><span></span><span class="c1"># -*- mode: ruby -*-</span>
-<span class="c1"># vi: set ft=ruby :</span>
-<span class="n">Vagrant</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span> <span class="n">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
-  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="s2">&quot;generic/debian9&quot;</span>
-  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_check_update</span> <span class="o">=</span> <span class="n">false</span>
-  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">synced_folder</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/src&quot;</span>
-  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">provision</span> <span class="p">:</span><span class="n">shell</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="s2">&quot;bootstrap.sh&quot;</span>
-<span class="n">end</span>
-</pre></div>
+<div class="section" id="foobar">
+<h3>FooBar<a class="headerlink" href="#foobar" title="Permalink to this headline">¶</a></h3>
+<p>tratra</p>
 </div>
-<p>Save it as Vagrantfile in the root of the project. This particular vagrant file downloads
-Debian 9 image, mounts its root directory under <code class="docutils literal"><span class="pre">/home/src</span></code> in the virtual machine and
-executes <code class="docutils literal"><span class="pre">bootstrap.sh</span></code>. Shell script then invokes <code class="docutils literal"><span class="pre">i686-elf-tools.sh</span></code> script that
-downloads necessary sources and compiles cross compiler. Once the compiler is built
-bootstrap script invokes cmake that builds the OS itself, builds bootable iso and
-documentation.</p>
-<p>Finally, starting whole building process is as simple as executing <code class="docutils literal"><span class="pre">vargant</span> <span class="pre">up</span></code> in the
-projects root directory.</p>
+<div class="section" id="spam">
+<h3>Spam<a class="headerlink" href="#spam" title="Permalink to this headline">¶</a></h3>
+<p>tratra</p>
 </div>
-<div class="section" id="cross-compiler">
-<h3>Cross Compiler<a class="headerlink" href="#cross-compiler" title="Permalink to this headline">¶</a></h3>
-<img alt="_images/cross-compiler.png" src="_images/cross-compiler.png" />
+<div class="section" id="spaz">
+<h3>Spaz<a class="headerlink" href="#spaz" title="Permalink to this headline">¶</a></h3>
+<p>tratra</p>
+</div>
+<div class="section" id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li><a class="reference external" href="https://en.wikipedia.org/wiki/X86">https://en.wikipedia.org/wiki/X86</a></li>
 <li><a class="reference external" href="https://www.gnu.org/software/grub/manual/legacy">https://www.gnu.org/software/grub/manual/legacy</a></li>
@@ -433,14 +488,19 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
   <ul>
 <li><a class="reference internal" href="#">KaTOS</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
-<li><a class="reference internal" href="#basics">Basics</a><ul>
+<li><a class="reference internal" href="#development-environment">Development environment</a><ul>
+<li><a class="reference internal" href="#preparing-the-box">Preparing the box</a></li>
+<li><a class="reference internal" href="#cross-compiler">Cross Compiler</a></li>
 <li><a class="reference internal" href="#first-steps">First steps</a></li>
 <li><a class="reference internal" href="#building-iso">Building ISO</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#development-environment">Development environment</a><ul>
-<li><a class="reference internal" href="#preparing-the-box">Preparing the box</a></li>
-<li><a class="reference internal" href="#cross-compiler">Cross Compiler</a></li>
+<li><a class="reference internal" href="#basics">Basics</a><ul>
+<li><a class="reference internal" href="#bootloader">Bootloader</a></li>
+<li><a class="reference internal" href="#foobar">FooBar</a></li>
+<li><a class="reference internal" href="#spam">Spam</a></li>
+<li><a class="reference internal" href="#spaz">Spaz</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#notes">Notes</a><ul>
@@ -460,23 +520,6 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/index.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -488,9 +531,6 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
-      |
-      <a href="_sources/index.txt"
-          rel="nofollow">Page source</a>
     </div>
 
     
