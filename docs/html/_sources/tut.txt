@@ -240,8 +240,26 @@ tratra
 
 References
 ~~~~~~~~~~~
+Books:
+
+1. xv6 book 10th ed, R. Cox, F. Kaashoek, R. Morris
+2. The little book about OS development, E. Helin, A. Renberg
+3. Operating systems: from 0 to 1, T.D. Hoang
+4. Writing a Simple Operating System, N. Blundell
+5. Operating System Concepts 10th ed., A. Silberschatz, G. Gagne, P.B. Galvin
+6. Operating systems design and implementation 3rd ed, A. Tanenbaum
+7. Intel® 64 and IA-32 Architectures Software Developer’s Manual (Vol 3)
+
+Internet pages:
 
 1. https://en.wikipedia.org/wiki/X86
 2. https://www.gnu.org/software/grub/manual/legacy
-3. https://littleosbook.github.io
-4. https://wiki.osdev.org
+3. https://linux.die.net/man/1/qemu-img
+4. https://wiki.osdev.org/C%2B%2B
+5. https://wiki.osdev.org/Boot_Sequence
+6. https://manybutfinite.com/post/how-computers-boot-up/
+7. https://wiki.osdev.org/GCC_Cross-Compiler
+8. https://en.wikipedia.org/wiki/Booting#BOOT-LOADER
+9. https://en.wikipedia.org/wiki/GNU_GRUB
+10. http://www.brokenthorn.com/Resources/OSDev12.html
+11. http://www.brokenthorn.com/Resources/OSDev10.html
