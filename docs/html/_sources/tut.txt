@@ -220,26 +220,47 @@ x86 is a family of backward-compatible instruction set architectures based on th
 
 
 Bootloader
-~~~~~~~~~~~
-tratra
+~~~~~~~~~~~~~~~~~
+Write me.
 
 
-FooBar
-~~~~~~~~~~~
-tratra
+Entering Protected mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+write me.
+
+gdt
+----
+write me.
 
 
-Spam
-~~~~~~~~~~~
-tratra
+Interrupts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Write me.
+
+Input and output
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Write me.
+
+keyboard driver
+----------------
+write me.
+
+Memory management
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Write me.
 
 
-Spaz
-~~~~~~~~~~~
-tratra
+Processes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Write me.
+
+File system
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Write me.
 
 References
-~~~~~~~~~~~
+=======================
+
 Books:
 
 1. xv6 book 10th ed, R. Cox, F. Kaashoek, R. Morris

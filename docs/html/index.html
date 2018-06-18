@@ -239,22 +239,43 @@ The ISO image contains the kernel executable, the GRUB bootloader and the config
 <p>x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel&#8217;s 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term &#8220;x86&#8221; came into being because the names of several successors to Intel&#8217;s 8086 processor end in &#8220;86&#8221;, including the 80186, 80286, 80386 and 80486 processors. [1]</p>
 <div class="section" id="bootloader">
 <h3>Bootloader<a class="headerlink" href="#bootloader" title="Permalink to this headline">¶</a></h3>
-<p>tratra</p>
+<p>Write me.</p>
 </div>
-<div class="section" id="foobar">
-<h3>FooBar<a class="headerlink" href="#foobar" title="Permalink to this headline">¶</a></h3>
-<p>tratra</p>
+<div class="section" id="entering-protected-mode">
+<h3>Entering Protected mode<a class="headerlink" href="#entering-protected-mode" title="Permalink to this headline">¶</a></h3>
+<p>write me.</p>
+<div class="section" id="gdt">
+<h4>gdt<a class="headerlink" href="#gdt" title="Permalink to this headline">¶</a></h4>
+<p>write me.</p>
 </div>
-<div class="section" id="spam">
-<h3>Spam<a class="headerlink" href="#spam" title="Permalink to this headline">¶</a></h3>
-<p>tratra</p>
 </div>
-<div class="section" id="spaz">
-<h3>Spaz<a class="headerlink" href="#spaz" title="Permalink to this headline">¶</a></h3>
-<p>tratra</p>
+<div class="section" id="interrupts">
+<h3>Interrupts<a class="headerlink" href="#interrupts" title="Permalink to this headline">¶</a></h3>
+<p>Write me.</p>
+</div>
+<div class="section" id="input-and-output">
+<h3>Input and output<a class="headerlink" href="#input-and-output" title="Permalink to this headline">¶</a></h3>
+<p>Write me.</p>
+<div class="section" id="keyboard-driver">
+<h4>keyboard driver<a class="headerlink" href="#keyboard-driver" title="Permalink to this headline">¶</a></h4>
+<p>write me.</p>
+</div>
+</div>
+<div class="section" id="memory-management">
+<h3>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h3>
+<p>Write me.</p>
+</div>
+<div class="section" id="processes">
+<h3>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h3>
+<p>Write me.</p>
+</div>
+<div class="section" id="file-system">
+<h3>File system<a class="headerlink" href="#file-system" title="Permalink to this headline">¶</a></h3>
+<p>Write me.</p>
+</div>
 </div>
 <div class="section" id="references">
-<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <p>Books:</p>
 <ol class="arabic simple">
 <li>xv6 book 10th ed, R. Cox, F. Kaashoek, R. Morris</li>
@@ -280,11 +301,10 @@ The ISO image contains the kernel executable, the GRUB bootloader and the config
 <li><a class="reference external" href="http://www.brokenthorn.com/Resources/OSDev10.html">http://www.brokenthorn.com/Resources/OSDev10.html</a></li>
 </ol>
 </div>
-</div>
 <div class="section" id="notes">
 <h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="text">
-<h3>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="the-framebuffer">
+<h3>The Framebuffer<a class="headerlink" href="#the-framebuffer" title="Permalink to this headline">¶</a></h3>
 <p>Starting address of memory-mapped I/O for the framebuffer is 0x000B8000. Highest 8 bits are ASCII value of the character, bits 7-4 the background and bits 3-0 foreground color.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Bit</span><span class="p">:</span>     <span class="o">|</span><span class="mi">15</span> <span class="mi">14</span> <span class="mi">13</span> <span class="mi">12</span> <span class="mi">11</span> <span class="mi">10</span> <span class="mi">9</span> <span class="mi">8</span><span class="o">|</span><span class="mi">7</span> <span class="mi">6</span> <span class="mi">5</span> <span class="mi">4</span><span class="o">|</span><span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span><span class="o">|</span>
 <span class="n">Content</span><span class="p">:</span> <span class="o">|</span> <span class="n">ASCII</span>               <span class="o">|</span> <span class="n">FG</span>    <span class="o">|</span> <span class="n">BG</span>    <span class="o">|</span>
@@ -294,7 +314,69 @@ The ISO image contains the kernel executable, the GRUB bootloader and the config
 <code class="docutils literal"><span class="pre">mov</span> <span class="pre">[0x000B8000],</span> <span class="pre">0x4128</span></code>
 where 0x41 represents ASCII A, 2 is green and 8 is dark grey color.</p>
 <p>Second cell (0,1) is 0x000B8000 + 16 = 0x000B8010</p>
-<p>Colors: <a class="reference external" href="https://i.imgur.com/bLhytNP.png">https://i.imgur.com/bLhytNP.png</a></p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="10%" />
+<col width="16%" />
+<col width="10%" />
+<col width="17%" />
+<col width="10%" />
+<col width="20%" />
+<col width="9%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Color</th>
+<th class="head">Value</th>
+<th class="head">Color</th>
+<th class="head">Value</th>
+<th class="head">Color</th>
+<th class="head">Value</th>
+<th class="head">Color</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Black</td>
+<td>0</td>
+<td>Red</td>
+<td>4</td>
+<td>Dark grey</td>
+<td>8</td>
+<td>Light red</td>
+<td>12</td>
+</tr>
+<tr class="row-odd"><td>Blue</td>
+<td>1</td>
+<td>Magenta</td>
+<td>5</td>
+<td>Light blue</td>
+<td>9</td>
+<td>Light magenta</td>
+<td>13</td>
+</tr>
+<tr class="row-even"><td>Green</td>
+<td>2</td>
+<td>Brown</td>
+<td>6</td>
+<td>Light green</td>
+<td>10</td>
+<td>Light brown</td>
+<td>14</td>
+</tr>
+<tr class="row-odd"><td>Cyan</td>
+<td>3</td>
+<td>Light grey</td>
+<td>7</td>
+<td>Light cyan</td>
+<td>11</td>
+<td>White</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
 </div>
 <div class="section" id="x86-assembly">
 <h3>x86 Assembly<a class="headerlink" href="#x86-assembly" title="Permalink to this headline">¶</a></h3>
@@ -520,14 +602,23 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 </li>
 <li><a class="reference internal" href="#basics">Basics</a><ul>
 <li><a class="reference internal" href="#bootloader">Bootloader</a></li>
-<li><a class="reference internal" href="#foobar">FooBar</a></li>
-<li><a class="reference internal" href="#spam">Spam</a></li>
-<li><a class="reference internal" href="#spaz">Spaz</a></li>
-<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#entering-protected-mode">Entering Protected mode</a><ul>
+<li><a class="reference internal" href="#gdt">gdt</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#interrupts">Interrupts</a></li>
+<li><a class="reference internal" href="#input-and-output">Input and output</a><ul>
+<li><a class="reference internal" href="#keyboard-driver">keyboard driver</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memory-management">Memory management</a></li>
+<li><a class="reference internal" href="#processes">Processes</a></li>
+<li><a class="reference internal" href="#file-system">File system</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#references">References</a></li>
 <li><a class="reference internal" href="#notes">Notes</a><ul>
-<li><a class="reference internal" href="#text">Text</a></li>
+<li><a class="reference internal" href="#the-framebuffer">The Framebuffer</a></li>
 <li><a class="reference internal" href="#x86-assembly">x86 Assembly</a></li>
 <li><a class="reference internal" href="#gnu-debugger">GNU Debugger</a></li>
 </ul>

@@ -1,8 +1,8 @@
 Notes
 =======================
 
-Text
-~~~~
+The Framebuffer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Starting address of memory-mapped I/O for the framebuffer is 0x000B8000. Highest 8 bits are ASCII value of the character, bits 7-4 the background and bits 3-0 foreground color.
 
@@ -17,7 +17,14 @@ where 0x41 represents ASCII A, 2 is green and 8 is dark grey color.
 
 Second cell (0,1) is 0x000B8000 + 16 = 0x000B8010
 
-Colors: https://i.imgur.com/bLhytNP.png
+ ======== ======== ============= ======== ============== ======== ================ ======= 
+  Color    Value      Color       Value       Color       Value        Color        Value  
+ ======== ======== ============= ======== ============== ======== ================ ======= 
+  Black        0    Red               4    Dark grey          8    Light red           12  
+  Blue         1    Magenta           5    Light blue         9    Light magenta       13  
+  Green        2    Brown             6    Light green       10    Light brown         14  
+  Cyan         3    Light grey        7    Light cyan        11    White               15  
+ ======== ======== ============= ======== ============== ======== ================ ======= 
 
 x86 Assembly
 ~~~~~~~~~~~~~~~~
