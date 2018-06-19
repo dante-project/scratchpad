@@ -251,6 +251,15 @@ file for grub legacy, stage2_eltorito...
 
 Operating system basics
 =======================
+The job of an operating system is to share a computer among multiple 
+programs and to provide a more useful set of services than the hardware 
+alone supports. The operating system manages and abstracts the low-level 
+hardware, so that, for example, a word processor need not concern itself 
+with which type of disk hardware is being used. It also shares the hardware 
+among multiple programs so that they run (or ap-pear to run) at the same 
+time. Finally, operating systems provide controlled ways for programs to 
+interact, so that they can share data or work together. 
+
 x86 is a family of backward-compatible instruction set architectures based on 
 the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 
 as a fully 16-bit extension of Intel's 8-bit-based 8080 microprocessor, with memory 
