@@ -262,7 +262,60 @@ file for grub legacy, stage2_eltorito...</p>
 <p>x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel&#8217;s 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term &#8220;x86&#8221; came into being because the names of several successors to Intel&#8217;s 8086 processor end in &#8220;86&#8221;, including the 80186, 80286, 80386 and 80486 processors. [1]</p>
 <div class="section" id="booting">
 <h2>Booting<a class="headerlink" href="#booting" title="Permalink to this headline">¶</a></h2>
+<p>When you turn on a computer, it loads the BIOS from some special flash
+memory. The BIOS runs self test and initialization routines of the hardware,
+then it looks for bootable devices. If it finds one, the control is
+transferred to its bootloader, which is a small portion of executable
+code stored at the device&#8217;s beginning. The bootloader has to determine
+the location of the kernel image on the device and load it into memory.
+It also needs to switch the CPU to the so-called protected mode because
+x86 CPUs start in the very limited real mode by default (to be backwards
+compatible)).</p>
 <img alt="_images/boot-process.png" src="_images/boot-process.png" />
+<p>We won&#8217;t write a bootloader because that would be a complex project on its
+own. Fortunately there is a bootloader standard: the Multiboot Specification.
+Our kernel just needs to indicate that it supports Multiboot and every
+Multiboot-compliant bootloader can boot it. We will use the Multiboot 2
+specification  together with the well-known GRUB 2 bootloader.</p>
+<p>To indicate our Multiboot 2 support to the bootloader, our kernel must start
+with a Multiboot Header, which has the following format:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="24%" />
+<col width="55%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Field</td>
+<td>Type</td>
+<td>Value</td>
+</tr>
+<tr class="row-even"><td>magic number</td>
+<td>u32</td>
+<td>0xE85250D6</td>
+</tr>
+<tr class="row-odd"><td>architecture</td>
+<td>u32</td>
+<td>0 for i386, 4 for MIPS</td>
+</tr>
+<tr class="row-even"><td>header length</td>
+<td>u32</td>
+<td>total header size, including tags</td>
+</tr>
+<tr class="row-odd"><td>checksum</td>
+<td>u32</td>
+<td>-(magic + architecture + header_length)</td>
+</tr>
+<tr class="row-even"><td>tags</td>
+<td>variable</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>end tag</td>
+<td>(u16, u16, u32)</td>
+<td>(0, 0, 8)</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="interrupts">
 <h2>Interrupts<a class="headerlink" href="#interrupts" title="Permalink to this headline">¶</a></h2>

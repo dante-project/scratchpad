@@ -257,7 +257,43 @@ x86 is a family of backward-compatible instruction set architectures based on th
 Booting
 ~~~~~~~~~~~~~~~~~
 
+When you turn on a computer, it loads the BIOS from some special flash 
+memory. The BIOS runs self test and initialization routines of the hardware, 
+then it looks for bootable devices. If it finds one, the control is 
+transferred to its bootloader, which is a small portion of executable 
+code stored at the device's beginning. The bootloader has to determine 
+the location of the kernel image on the device and load it into memory. 
+It also needs to switch the CPU to the so-called protected mode because 
+x86 CPUs start in the very limited real mode by default (to be backwards 
+compatible)).
+
 .. image:: boot-process.png
+
+We won't write a bootloader because that would be a complex project on its 
+own. Fortunately there is a bootloader standard: the Multiboot Specification. 
+Our kernel just needs to indicate that it supports Multiboot and every 
+Multiboot-compliant bootloader can boot it. We will use the Multiboot 2 
+specification  together with the well-known GRUB 2 bootloader.
+
+To indicate our Multiboot 2 support to the bootloader, our kernel must start 
+with a Multiboot Header, which has the following format:
+
++----------------+------------------+-----------------------------------------+
+|     Field      |      Type        |                  Value                  |
++----------------+------------------+-----------------------------------------+
+| magic number   | u32              | 0xE85250D6                              |
++----------------+------------------+-----------------------------------------+
+| architecture   | u32              | 0 for i386, 4 for MIPS                  |
++----------------+------------------+-----------------------------------------+
+| header length  | u32              | total header size, including tags       |
++----------------+------------------+-----------------------------------------+
+| checksum       | u32              | -(magic + architecture + header_length) |
++----------------+------------------+-----------------------------------------+
+| tags           | variable         |                                         |
++----------------+------------------+-----------------------------------------+
+| end tag        | (u16, u16, u32)  | (0, 0, 8)                               |
++----------------+------------------+-----------------------------------------+
+
 
 Interrupts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
