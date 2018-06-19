@@ -339,7 +339,7 @@ The following is the rough overall structure of the ISO 9660 file system:
 +--------------------------------------------------------------+
 |              ISO 9660 File System                            |
 +--------------------------------------------------------------+
-| System Area (32,768 B)  | Unused by ISO 9660                 |
+| System Area             | Unused by ISO 9660                 |
 +-------------------------+------------------------------------+
 | Data Area               | Volume Descriptor Set              | 
 |                         |                                    |
