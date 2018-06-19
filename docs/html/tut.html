@@ -582,7 +582,10 @@ memory - what is reserved, I/O mapped, read-only etc.</p>
 </div>
 <div class="section" id="processes">
 <h2>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h2>
-<p>managment, multitasking, elf</p>
+<p>Creating new processes is usually done with two different system calls:
+fork and exec. fork creates an exact copy of the currently running process,
+while exec replaces the current process with one that is specified by a path
+to the location of a program in the file system.</p>
 </div>
 <div class="section" id="system-calls">
 <h2>System calls<a class="headerlink" href="#system-calls" title="Permalink to this headline">¶</a></h2>
