@@ -303,6 +303,69 @@ with a Multiboot Header, which has the following format:
 | end tag        | (u16, u16, u32)  | (0, 0, 8)                               |
 +----------------+------------------+-----------------------------------------+
 
+
+.. code:: gas
+
+	.set ALIGN,    1<<0             
+	.set MEMINFO,  1<<1            
+	.set FLAGS,    ALIGN | MEMINFO  
+	.set MAGIC,    0x1BADB002       
+	.set CHECKSUM, -(MAGIC + FLAGS) 
+
+	.section .multiboot
+	.align 4
+	.long MAGIC
+	.long FLAGS
+	.long CHECKSUM
+
+
+	.section .bootstrap_stack
+	stack_bottom:
+	.skip 4096 # 4 KiB
+	stack_top:
+
+
+	.section .text
+	.global _start
+	.type _start, @function
+	_start:
+		
+		movl $stack_top, %esp
+
+		push %eax
+		push %ebx
+		call kernel_main
+
+		cli
+	.Lhang:
+		hlt
+		jmp .Lhang
+
+	.size _start, . - _start
+
+First part of code ( first 5 lines ) declares constants used for creating multiboot header,
+then in next 5 lines are some magic values that are documented in the multiboot standard.
+We need this values cause bootloader searches for this "magic" sequence and see's us as multiboot kernel.
+After that we need to 'fix' our stack pointer cause esp(stack pointer register) points at anything,
+using it may cause massive harm. We'll provide our own stack, we allocate room for a small temporary stack
+by creating a symbol at the bottom of it, then we allocate 16384 bytes for it, and finnaly create symbol at
+the top.
+Cause linker specifies _start as the entry point to the kernel and bootloader will jump to this position
+once the kernel has been loaded.
+After _start: we are in kernel mode. We have sufficient code for bootloader to load and run our OS.
+Nothing interested will happen now unless we code it, and that is where fun begins. If you want function
+like printf() you need to code it. Note that processor is not fully initialized yet and stuff such as
+floating point instructions are not available yet.
+We need to set up few more things, first we point esp register to top of stack(as it grows downwards).
+After this point its time for some higher language than assembly but before that lets make entry point
+called ketnel_main and call it here.
+If function returns, we want to put computer into an infinitive loop. To do that we use "cli" instruction
+to disable interrupts, the "hlt" to stop the CPU until next interrupt arrives, and jump to the halt
+instruction if it ever continues execution.
+Last line is useful when debugging or when you implement call tracing(we'll not dig that deep here).
+
+
+
 Grub moves kernel into protected mode that allows system software to use 
 features such as  virtual memory, paging and safe multi-tasking designed to 
 increase an operating system's control over application software.

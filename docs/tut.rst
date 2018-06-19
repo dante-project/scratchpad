@@ -305,6 +305,7 @@ with a Multiboot Header, which has the following format:
 
 
 .. code:: gas
+
 	.set ALIGN,    1<<0             
 	.set MEMINFO,  1<<1            
 	.set FLAGS,    ALIGN | MEMINFO  
