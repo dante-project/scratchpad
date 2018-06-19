@@ -161,54 +161,49 @@ the exit status.
 
 Building ISO 
 ~~~~~~~~~~~~
-We will create the kernel ISO image with the program genisoimage. A folder must first be created that contains the files that will be on the ISO image. The following commands create the folder and copy the files to their correct places:
+We will create the kernel ISO image with the program grub-mkrescue. A folder must first be created 
+that contains the files that will be on the ISO image. The following commands create the folder and 
+copy the files to their correct places:
 
 .. code:: bash
 
     mkdir -p iso/boot/grub              # create the folder structure
-    cp stage2_eltorito iso/boot/grub/   # copy the bootloader
-    cp kernel.elf iso/boot/             # copy the kernel
+    cp kernel.bin iso/boot/             # copy the kernel
 
 
-A `configuration file <https://www.gnu.org/software/grub/manual/legacy/Configuration.html#Configuration>`_ menu.lst for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:
-
-.. code::
-
-    default=0
-    timeout=0
-
-    title os
-    kernel /boot/kernel.elf
-
-Place the file menu.lst in the folder iso/boot/grub/. The contents of the iso folder should now look like the following figure:
+A `configuration file <https://www.gnu.org/software/grub/manual/legacy/Configuration.html#Configuration>`_ menu.cfg 
+for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:
 
 .. code::
 
-    iso
-    |-- boot
-      |-- grub
-      | |-- menu.lst
-      | |-- stage2_eltorito
-      |-- kernel.elf
+  set timeout=30
+  set default=0
+  menuentry "KaT OS" {
+      multiboot /boot/kernel.bin
+      boot
+  }
 
-Finally, make a ISO9660 image file like this: 
+
+Place the file in the folder iso/boot/grub/. The contents of the iso folder should now look like the 
+following figure:
+
+.. code::
+
+ iso
+ └── boot
+     ├── grub
+     │   └── grub.cfg
+     └── kernel.bin
+
+Finally, make a ISO9660 image file by invoking: 
 
 .. code:: bash
 
-    genisoimage -R                              \
-                -b boot/grub/stage2_eltorito    \
-                -no-emul-boot                   \
-                -boot-load-size 4               \
-                -A os                           \
-                -input-charset utf8             \
-                -quiet                          \
-                -boot-info-table                \
-                -o os.iso                       \
-                iso
+    grub-mkrescue -o os.iso iso
 
-For more information about the flags used in the command, see the manual for genisoimage.
-This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly into virtual machine.
-The ISO image contains the kernel executable, the GRUB bootloader and the configuration file.
+This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly 
+into virtual machine. The ISO image contains the kernel executable, the GRUB bootloader and the 
+configuration file.
 
 To run the OS in QEMU emulator execute:
 
@@ -366,7 +361,18 @@ GDT IDT
 
 PS/2 Keyboard
 --------------
-clickclick
+The PS/2 Keyboard is a device that talks to a PS/2 controller using serial communication. 
+Ideally, each different type of PS/2 controller driver should provide some sort of 
+standard/simple "send byte/receive byte" interface, and the PS/2 Keyboard driver would 
+use this interface without caring about lower level details (like what type of PS/2 controller 
+the device is plugged into).
+
+The PS/2 Keyboard accepts commands and sends responses to those commands, and also sends scan 
+codes indicating when a key was pressed or released. A command is one byte. Some commands have 
+data byte/s which must be sent after the command byte. The keyboard typically responds to a 
+command by sending either an "ACK" (to acknowledge the command) or a "Resend" (to say something 
+was wrong with the previous command) back.
+
 
 Memory management
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

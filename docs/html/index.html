@@ -195,45 +195,39 @@ the exit status.</p>
 </div>
 <div class="section" id="building-iso">
 <h3>Building ISO<a class="headerlink" href="#building-iso" title="Permalink to this headline">¶</a></h3>
-<p>We will create the kernel ISO image with the program genisoimage. A folder must first be created that contains the files that will be on the ISO image. The following commands create the folder and copy the files to their correct places:</p>
+<p>We will create the kernel ISO image with the program grub-mkrescue. A folder must first be created
+that contains the files that will be on the ISO image. The following commands create the folder and
+copy the files to their correct places:</p>
 <div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">grub</span>              <span class="c1"># create the folder structure</span>
-<span class="n">cp</span> <span class="n">stage2_eltorito</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">grub</span><span class="o">/</span>   <span class="c1"># copy the bootloader</span>
-<span class="n">cp</span> <span class="n">kernel</span><span class="o">.</span><span class="n">elf</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span>             <span class="c1"># copy the kernel</span>
+<span class="n">cp</span> <span class="n">kernel</span><span class="o">.</span><span class="n">bin</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span>             <span class="c1"># copy the kernel</span>
 </pre></div>
 </div>
-<p>A <a class="reference external" href="https://www.gnu.org/software/grub/manual/legacy/Configuration.html#Configuration">configuration file</a> menu.lst for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">default</span><span class="o">=</span><span class="mi">0</span>
-<span class="n">timeout</span><span class="o">=</span><span class="mi">0</span>
-
-<span class="n">title</span> <span class="n">os</span>
-<span class="n">kernel</span> <span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">elf</span>
+<p>A <a class="reference external" href="https://www.gnu.org/software/grub/manual/legacy/Configuration.html#Configuration">configuration file</a> menu.cfg
+for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span>
+<span class="nb">set</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">menuentry</span> <span class="s2">&quot;KaT OS&quot;</span> <span class="p">{</span>
+    <span class="n">multiboot</span> <span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">bin</span>
+    <span class="n">boot</span>
+<span class="p">}</span>
 </pre></div>
 </div>
-<p>Place the file menu.lst in the folder iso/boot/grub/. The contents of the iso folder should now look like the following figure:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">iso</span>
-<span class="o">|--</span> <span class="n">boot</span>
-  <span class="o">|--</span> <span class="n">grub</span>
-  <span class="o">|</span> <span class="o">|--</span> <span class="n">menu</span><span class="o">.</span><span class="n">lst</span>
-  <span class="o">|</span> <span class="o">|--</span> <span class="n">stage2_eltorito</span>
-  <span class="o">|--</span> <span class="n">kernel</span><span class="o">.</span><span class="n">elf</span>
+<p>Place the file in the folder iso/boot/grub/. The contents of the iso folder should now look like the
+following figure:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>iso
+└── boot
+    ├── grub
+    │   └── grub.cfg
+    └── kernel.bin
 </pre></div>
 </div>
-<p>Finally, make a ISO9660 image file like this:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">genisoimage</span> <span class="o">-</span><span class="n">R</span>                              \
-            <span class="o">-</span><span class="n">b</span> <span class="n">boot</span><span class="o">/</span><span class="n">grub</span><span class="o">/</span><span class="n">stage2_eltorito</span>    \
-            <span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">emul</span><span class="o">-</span><span class="n">boot</span>                   \
-            <span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">load</span><span class="o">-</span><span class="n">size</span> <span class="mi">4</span>               \
-            <span class="o">-</span><span class="n">A</span> <span class="n">os</span>                           \
-            <span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="n">charset</span> <span class="n">utf8</span>             \
-            <span class="o">-</span><span class="n">quiet</span>                          \
-            <span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">info</span><span class="o">-</span><span class="n">table</span>                \
-            <span class="o">-</span><span class="n">o</span> <span class="n">os</span><span class="o">.</span><span class="n">iso</span>                       \
-            <span class="n">iso</span>
+<p>Finally, make a ISO9660 image file by invoking:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">grub</span><span class="o">-</span><span class="n">mkrescue</span> <span class="o">-</span><span class="n">o</span> <span class="n">os</span><span class="o">.</span><span class="n">iso</span> <span class="n">iso</span>
 </pre></div>
 </div>
-<p>For more information about the flags used in the command, see the manual for genisoimage.
-This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly into virtual machine.
-The ISO image contains the kernel executable, the GRUB bootloader and the configuration file.</p>
+<p>This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly
+into virtual machine. The ISO image contains the kernel executable, the GRUB bootloader and the
+configuration file.</p>
 <p>To run the OS in QEMU emulator execute:</p>
 <div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">qemu</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">i386</span> <span class="o">-</span><span class="n">cdrom</span> <span class="n">os</span><span class="o">.</span><span class="n">iso</span>
 </pre></div>
@@ -271,6 +265,14 @@ file for grub legacy, stage2_eltorito...</p>
 </div>
 <div class="section" id="operating-system-basics">
 <h2>Operating system basics<a class="headerlink" href="#operating-system-basics" title="Permalink to this headline">¶</a></h2>
+<p>The job of an operating system is to share a computer among multiple
+programs and to provide a more useful set of services than the hardware
+alone supports. The operating system manages and abstracts the low-level
+hardware, so that, for example, a word processor need not concern itself
+with which type of disk hardware is being used. It also shares the hardware
+among multiple programs so that they run (or ap-pear to run) at the same
+time. Finally, operating systems provide controlled ways for programs to
+interact, so that they can share data or work together.</p>
 <p>x86 is a family of backward-compatible instruction set architectures based on
 the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978
 as a fully 16-bit extension of Intel&#8217;s 8-bit-based 8080 microprocessor, with memory
@@ -442,7 +444,16 @@ the controller to update it&#8217;s cursor position.</p>
 </div>
 <div class="section" id="ps-2-keyboard">
 <h4>PS/2 Keyboard<a class="headerlink" href="#ps-2-keyboard" title="Permalink to this headline">¶</a></h4>
-<p>clickclick</p>
+<p>The PS/2 Keyboard is a device that talks to a PS/2 controller using serial communication.
+Ideally, each different type of PS/2 controller driver should provide some sort of
+standard/simple &#8220;send byte/receive byte&#8221; interface, and the PS/2 Keyboard driver would
+use this interface without caring about lower level details (like what type of PS/2 controller
+the device is plugged into).</p>
+<p>The PS/2 Keyboard accepts commands and sends responses to those commands, and also sends scan
+codes indicating when a key was pressed or released. A command is one byte. Some commands have
+data byte/s which must be sent after the command byte. The keyboard typically responds to a
+command by sending either an &#8220;ACK&#8221; (to acknowledge the command) or a &#8220;Resend&#8221; (to say something
+was wrong with the previous command) back.</p>
 </div>
 </div>
 <div class="section" id="memory-management">
