@@ -289,7 +289,7 @@ code stored at the device&#8217;s beginning. The bootloader has to determine
 the location of the kernel image on the device and load it into memory.
 It also needs to switch the CPU to the so-called protected mode because
 x86 CPUs start in the very limited real mode by default (to be backwards
-compatible)).</p>
+compatible).</p>
 <img alt="_images/boot-process.png" src="_images/boot-process.png" />
 <p>We won&#8217;t write a bootloader because that would be a complex project on its
 own. Fortunately there is a bootloader standard: the Multiboot Specification.
@@ -441,8 +441,8 @@ and 8 is dark grey color. Second cell (0,1) would be 0x000B8000 + 16 = 0x000B801
 (Among others) it has a control register at 0x3D4 and a data register at 0x3D5. We will use these to instruct
 the controller to update it&#8217;s cursor position.</p>
 </div>
-<div class="section" id="global-descriptor-table">
-<h4>Global Descriptor Table<a class="headerlink" href="#global-descriptor-table" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="gdt">
+<h4>GDT<a class="headerlink" href="#gdt" title="Permalink to this headline">¶</a></h4>
 <p>The Global Descriptor Table (GDT) is a data structure used by
 Intel x86-family processors starting with the 80286 in order to
 define the characteristics of the various memory areas used
@@ -542,7 +542,21 @@ was wrong with the previous command) back.</p>
 </div>
 <div class="section" id="processes">
 <h3>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h3>
-<p>managment, multitasking, elf, userland and syscalls</p>
+<p>managment, multitasking, elf</p>
+</div>
+<div class="section" id="system-calls">
+<h3>System calls<a class="headerlink" href="#system-calls" title="Permalink to this headline">¶</a></h3>
+<p>System calls is the way user-mode applications interact with the kernel -
+to ask for resources, request operations to be performed, etc.</p>
+<p>System calls are traditionally invoked with software interrupts. The
+user applications put the appropriate values in registers or on the stack
+and then initiates a pre-defined interrupt which transfers execution to the
+kernel.</p>
+<p>When system calls are executed, the current privilege level is typically
+changed from PL3 to PL0 (if the application is running in user mode).
+To allow this, the DPL of the entry in the IDT for the system call interrupt
+needs to allow PL3 access.</p>
+<p>To enable system calls we need to setup a TSS before entering user mode.</p>
 </div>
 <div class="section" id="file-system">
 <h3>File system<a class="headerlink" href="#file-system" title="Permalink to this headline">¶</a></h3>
@@ -920,13 +934,14 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 <li><a class="reference internal" href="#booting">Booting</a></li>
 <li><a class="reference internal" href="#device-drivers">Device drivers</a><ul>
 <li><a class="reference internal" href="#the-screen">The screen</a></li>
-<li><a class="reference internal" href="#global-descriptor-table">Global Descriptor Table</a></li>
+<li><a class="reference internal" href="#gdt">GDT</a></li>
 <li><a class="reference internal" href="#interrupts">Interrupts</a></li>
 <li><a class="reference internal" href="#ps-2-keyboard">PS/2 Keyboard</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#memory-management">Memory management</a></li>
 <li><a class="reference internal" href="#processes">Processes</a></li>
+<li><a class="reference internal" href="#system-calls">System calls</a></li>
 <li><a class="reference internal" href="#file-system">File system</a><ul>
 <li><a class="reference internal" href="#pci-ide-controller">PCI IDE Controller</a></li>
 <li><a class="reference internal" href="#iso-9660">ISO 9660</a></li>
