@@ -538,7 +538,61 @@ was wrong with the previous command) back.</p>
 </div>
 <div class="section" id="memory-management">
 <h3>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h3>
-<p>segmentation, Paging, heap, virtual memory</p>
+<p>Virtual memory is an abstraction of physical memory.
+The purpose of virtual memory is generally to simplify application
+development and to let processes address more memory than what is
+actually physically present in the machine. We also don’t want
+applications messing with the kernel or other applications’ memory due
+to security.</p>
+<p>In the x86 architecture, virtual memory can be accomplished in two ways:
+segmentation and paging. Paging is by far the most common and versatile
+technique, and we’ll implement it the next chapter. Some use of segmentation
+is still necessary to allow for code to execute under different privilege
+levels.</p>
+<div class="section" id="segmentation">
+<h4>Segmentation<a class="headerlink" href="#segmentation" title="Permalink to this headline">¶</a></h4>
+<p>Segmentation in x86 means accessing the memory through segments.
+Segments are portions of the address space, possibly overlapping,
+specified by a base address and a limit. To address a byte in segmented
+memory you use a 48-bit logical address: 16 bits that specifies the
+segment and 32-bits that specifies what offset within that segment you want. The offset is added to the base address of the segment, and the resulting linear address is checked against the segment’s limit - see the figure below. If everything works out fine (including access-rights checks ignored for now) the result is a linear address. When paging is disabled, then the linear address space is mapped 1:1 onto the physical address space, and the physical memory can be accessed.
+We enable segmentation via GDT.</p>
+</div>
+<div class="section" id="paging">
+<h4>Paging<a class="headerlink" href="#paging" title="Permalink to this headline">¶</a></h4>
+<p>Segmentation translates a logical address into a linear address.
+Paging translates these linear addresses onto the physical address space,
+and determines access rights and how the memory should be cached.</p>
+<p>Paging in x86 consists of a page directory (PDT) that can contain
+references to 1024 page tables (PT), each of which can point to
+1024 sections of physical memory called page frames (PF). Each page
+frame is 4096 byte large. In a virtual (linear) address, the highest
+10 bits specifies the offset of a page directory entry (PDE) in the
+current PDT, the next 10 bits the offset of a page table entry (PTE)
+within the page table pointed to by that PDE. The lowest 12 bits in the
+address is the offset within the page frame to be addressed.</p>
+<p>All page directories, page tables and page frames need to be aligned
+on 4096 byte addresses. This makes it possible to address a PDT, PT or
+PF with just the highest 20 bits of a 32 bit address, since the lowest
+12 need to be zero.</p>
+<p>The PDE and PTE structure is very similar to each other: 32 bits (4 bytes),
+where the highest 20 bits points to a PTE or PF, and the lowest 12 bits
+control access rights and other configurations. 4 bytes times 1024 equals
+4096 bytes, so a page directory and page table both fit in a page frame
+themselves.</p>
+<p>The simplest kind of paging is when we map each virtual address onto the
+same physical address, called identity paging. This can be done at compile
+time by creating a page directory where each entry points to its
+corresponding 4 MB frame.</p>
+</div>
+<div class="section" id="page-frame-allocation">
+<h4>Page Frame Allocation<a class="headerlink" href="#page-frame-allocation" title="Permalink to this headline">¶</a></h4>
+<p>Role of page frame allocator is simply to tell the OS which parts of memory
+are free to use. We need to know how much memory is available on the
+computer the OS is running on. We can read it from the multiboot structure
+passed to us by GRUB. GRUB collects the information we need about the
+memory - what is reserved, I/O mapped, read-only etc.</p>
+</div>
 </div>
 <div class="section" id="processes">
 <h3>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h3>
@@ -939,7 +993,12 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 <li><a class="reference internal" href="#ps-2-keyboard">PS/2 Keyboard</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#memory-management">Memory management</a></li>
+<li><a class="reference internal" href="#memory-management">Memory management</a><ul>
+<li><a class="reference internal" href="#segmentation">Segmentation</a></li>
+<li><a class="reference internal" href="#paging">Paging</a></li>
+<li><a class="reference internal" href="#page-frame-allocation">Page Frame Allocation</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#processes">Processes</a></li>
 <li><a class="reference internal" href="#system-calls">System calls</a></li>
 <li><a class="reference internal" href="#file-system">File system</a><ul>
