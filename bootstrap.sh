@@ -23,11 +23,11 @@ fi
 
 /bin/bash i686-elf-tools.sh
 
-#cmake .
+log echo -e " [+] building OS"
+#/bin/bash build.sh build
 
 log echo -e " [+] building docs"
-cd docs
-make html
+/bin/bash build.sh docs
 
 if [ `logname` = "vagrant" ]; then
     log echo -e " [+] box up and running"
