@@ -274,7 +274,7 @@ code stored at the device's beginning. The bootloader has to determine
 the location of the kernel image on the device and load it into memory. 
 It also needs to switch the CPU to the so-called protected mode because 
 x86 CPUs start in the very limited real mode by default (to be backwards 
-compatible)).
+compatible).
 
 .. image:: boot-process.png
 
@@ -421,7 +421,7 @@ The VGA controller also has some ports on the main I/O bus, which we can use to 
 (Among others) it has a control register at 0x3D4 and a data register at 0x3D5. We will use these to instruct 
 the controller to update it's cursor position.
 
-Global Descriptor Table
+GDT
 ------------------------
 The Global Descriptor Table (GDT) is a data structure used by 
 Intel x86-family processors starting with the 80286 in order to 
@@ -533,8 +533,25 @@ segmentation, Paging, heap, virtual memory
 
 Processes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-managment, multitasking, elf, userland and syscalls
+managment, multitasking, elf
 
+
+System calls
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+System calls is the way user-mode applications interact with the kernel - 
+to ask for resources, request operations to be performed, etc. 
+
+System calls are traditionally invoked with software interrupts. The 
+user applications put the appropriate values in registers or on the stack 
+and then initiates a pre-defined interrupt which transfers execution to the 
+kernel.
+
+When system calls are executed, the current privilege level is typically 
+changed from PL3 to PL0 (if the application is running in user mode). 
+To allow this, the DPL of the entry in the IDT for the system call interrupt 
+needs to allow PL3 access.
+
+To enable system calls we need to setup a TSS before entering user mode.
 
 File system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
