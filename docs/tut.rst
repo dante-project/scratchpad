@@ -318,7 +318,43 @@ Write me.
 
 File system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Write me.
+The purpose of file system is to organise and store data. File system
+typically supports sharing data among users and applications, as well as
+persistence so data is still available after reboot.
+
+KaT OS implements ISO 9660 file system and ATAPI drivers.
+
+ISO 9660
+----------------
+ISO 9660 is the standard file system for CD-ROMs. It is also widely used 
+on DVD and BD media and may as well be present on USB sticks or hard disks. 
+Its specifications are available for free under the name ECMA-119. 
+
+An ISO 9660 sector is normally 2 KiB long. Although the specification allows 
+for alternative sector sizes, you will rarely find anything other than 2 KiB. 
+ISO 9660 file systems can have up to 2 exp 32 blocks, i.e. 8 TiB.
+
+The following is the rough overall structure of the ISO 9660 file system:
+
++--------------------------------------------------------------+
+|              ISO 9660 File System                            |
++--------------------------------------------------------------+
+| System Area (32,768 B)  | Unused by ISO 9660                 |
++-------------------------+------------------------------------+
+| Data Area               | Volume Descriptor Set              | 
+|                         | Path tables, Directories and Files | 
++-------------------------+------------------------------------+
+
+The ISO 9660 standard specifies three ways to encode 16 and 32-bit integers, 
+using either little-endian (least-significant byte first), big-endian 
+(most-significant byte first), or a combination of both (little-endian followed
+by big-endian). Both-endian (LSB-MSB) fields are therefore twice as wide. 
+For this reason, 32-bit LBA's often appear as 8 byte fields. Where a both-endian 
+format is present, the x86 architecture makes use of the first little-endian 
+sequence and ignores the big-endian sequence. 
+
+
+
 
 References
 =======================
@@ -348,6 +384,7 @@ Internet pages:
 9. https://en.wikipedia.org/wiki/GNU_GRUB
 10. http://www.brokenthorn.com/Resources/OSDev12.html
 11. http://www.brokenthorn.com/Resources/OSDev10.html
+12. https://en.wikipedia.org/wiki/File_system
 
 |
 |
