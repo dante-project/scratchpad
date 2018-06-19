@@ -337,64 +337,25 @@ with a Multiboot Header, which has the following format:</p>
 </tr>
 </tbody>
 </table>
-<div class="code gas highlight-default"><div class="highlight"><pre><span></span>.set ALIGN,    1&lt;&lt;0
-.set MEMINFO,  1&lt;&lt;1
-.set FLAGS,    ALIGN | MEMINFO
-.set MAGIC,    0x1BADB002
-.set CHECKSUM, -(MAGIC + FLAGS)
+<p>We can define the constants and header in assembly:</p>
+<div class="code gas highlight-default"><div class="highlight"><pre><span></span><span class="c1"># multiboot header constants</span>
+<span class="o">.</span><span class="n">set</span> <span class="n">ALIGN</span><span class="p">,</span>    <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">0</span>             <span class="c1"># align loaded modules on page boundaries</span>
+<span class="o">.</span><span class="n">set</span> <span class="n">MEMINFO</span><span class="p">,</span>  <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span>             <span class="c1"># provide memory map</span>
+<span class="o">.</span><span class="n">set</span> <span class="n">FLAGS</span><span class="p">,</span>    <span class="n">ALIGN</span> <span class="o">|</span> <span class="n">MEMINFO</span>  <span class="c1"># this is the Multiboot &#39;flag&#39; field</span>
+<span class="o">.</span><span class="n">set</span> <span class="n">MAGIC</span><span class="p">,</span>    <span class="mh">0x1BADB002</span>       <span class="c1"># &#39;magic number&#39; lets bootloader find the header</span>
+<span class="o">.</span><span class="n">set</span> <span class="n">CHECKSUM</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="n">MAGIC</span> <span class="o">+</span> <span class="n">FLAGS</span><span class="p">)</span> <span class="c1"># checksum of above, to prove we are multiboot</span>
 
-.section .multiboot
-.align 4
-.long MAGIC
-.long FLAGS
-.long CHECKSUM
-
-
-.section .bootstrap_stack
-stack_bottom:
-.skip 4096 # 4 KiB
-stack_top:
-
-
-.section .text
-.global _start
-.type _start, @function
-_start:
-
-        movl $stack_top, %esp
-
-        push %eax
-        push %ebx
-        call kernel_main
-
-        cli
-.Lhang:
-        hlt
-        jmp .Lhang
-
-.size _start, . - _start
+<span class="c1"># Declare a header as in the Multiboot Standard.</span>
+<span class="o">.</span><span class="n">section</span> <span class="o">.</span><span class="n">multiboot</span>
+<span class="o">.</span><span class="n">align</span> <span class="mi">4</span>
+<span class="o">.</span><span class="n">long</span> <span class="n">MAGIC</span>
+<span class="o">.</span><span class="n">long</span> <span class="n">FLAGS</span>
+<span class="o">.</span><span class="n">long</span> <span class="n">CHECKSUM</span>
 </pre></div>
 </div>
-<p>First part of code ( first 5 lines ) declares constants used for creating multiboot header,
-then in next 5 lines are some magic values that are documented in the multiboot standard.
-We need this values cause bootloader searches for this &#8220;magic&#8221; sequence and see&#8217;s us as multiboot kernel.
-After that we need to &#8216;fix&#8217; our stack pointer cause esp(stack pointer register) points at anything,
-using it may cause massive harm. We&#8217;ll provide our own stack, we allocate room for a small temporary stack
-by creating a symbol at the bottom of it, then we allocate 16384 bytes for it, and finnaly create symbol at
-the top.
-Cause linker specifies _start as the entry point to the kernel and bootloader will jump to this position
-once the kernel has been loaded.
-After _start: we are in kernel mode. We have sufficient code for bootloader to load and run our OS.
-Nothing interested will happen now unless we code it, and that is where fun begins. If you want function
-like printf() you need to code it. Note that processor is not fully initialized yet and stuff such as
-floating point instructions are not available yet.
-We need to set up few more things, first we point esp register to top of stack(as it grows downwards).
-After this point its time for some higher language than assembly but before that lets make entry point
-called ketnel_main and call it here.
-If function returns, we want to put computer into an infinitive loop. To do that we use &#8220;cli&#8221; instruction
-to disable interrupts, the &#8220;hlt&#8221; to stop the CPU until next interrupt arrives, and jump to the halt
-instruction if it ever continues execution.
-Last line is useful when debugging or when you implement call tracing(we&#8217;ll not dig that deep here).</p>
+<p>We put header into special section so we can force it to
+be in the start of the final program. The bootloader will
+search for this magic sequence and recognize us as a multiboot kernel.</p>
 <p>Grub moves kernel into protected mode that allows system software to use
 features such as  virtual memory, paging and safe multi-tasking designed to
 increase an operating system&#8217;s control over application software.</p>
