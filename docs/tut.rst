@@ -322,7 +322,48 @@ The purpose of file system is to organise and store data. File system
 typically supports sharing data among users and applications, as well as
 persistence so data is still available after reboot.
 
+The communication between computer and optical drive can be done by various 
+types of controllers and cabling such as ATAPI, SATA, or USB. Many operating 
+systems offer some kind of generic SCSI driver interface which abtracts the 
+various transports to a single transaction API. These APIs are also available 
+in userspace. 
+
 KaT OS implements ISO 9660 file system and ATA/ATAPI drivers.
+
+
+PCI IDE Controller
+-------------------
+
+DE is a keyword which refers to the electrical specification of the cables which 
+connect ATA drives (like hard drives) to another device. The drives use the 
+ATA (Advanced Technology Attachment) interface. An IDE cable also can terminate 
+at an IDE card connected to PCI.
+
+Parallel ATA (PATA), originally AT Attachment, is an interface standard for 
+the connection of storage devices such as hard disk drives, floppy disk drives, 
+and optical disc drives in computers. It uses the underlying AT Attachment (ATA) 
+and AT Attachment Packet Interface (ATAPI) standards.
+
+ATAPI is an extension to ATA (recently renamed to PATA) and Serial ATA, which adds 
+support for the SCSI command set. With ATAPI a greater variety of devices can be 
+connected to a computer than with ATA alone. 
+
+ATAPI devices are also "speaking ATA" because the ATA physical interface and protocol 
+are still being used to send the packets. On the other hand, ATA hard drives and solid 
+state drives do not use ATAPI. ATAPI is basically a way to issue SCSI commands to a CD-ROM, 
+CD-RW, DVD, or tape drive, attached to the ATA bus. 
+
+ATAPI uses a very small number of ATA commands. The most important are the PACKET 
+command (0xA0), and IDENTIFY PACKET DEVICE (0xA1). 
+
+An IDE driver does not need to know whether a drive is parallel or serial, it only has 
+to know whether it's using ATA or ATAPI. IDE can connect up to 4 drives. Each drive can 
+be one of the following:
+
+ -ATA (Serial): Used for most modern hard drives.
+ -ATA (Parallel): Commonly used for hard drives.
+ -ATAPI (Serial): Used for most modern optical drives.
+ -ATAPI (Parallel): Commonly used for optical drives. 
 
 ISO 9660
 ----------------
@@ -354,28 +395,7 @@ For this reason, 32-bit LBA's often appear as 8 byte fields. Where a both-endian
 format is present, the x86 architecture makes use of the first little-endian 
 sequence and ignores the big-endian sequence. 
 
-
-ATA & ATAPI
-----------------
-Parallel ATA (PATA), originally AT Attachment, is an interface standard for 
-the connection of storage devices such as hard disk drives, floppy disk drives, 
-and optical disc drives in computers. It uses the underlying AT Attachment (ATA) 
-and AT Attachment Packet Interface (ATAPI) standards.
-
-ATA Packet Interface (ATAPI) is a protocol that has been added to Parallel ATA and 
-Serial ATA so that a greater variety of devices can be connected to a computer than 
-with ATA alone. 
-
-ATAPI devices are also "speaking ATA" because the ATA physical interface and protocol 
-are still being used to send the packets. On the other hand, ATA hard drives and solid 
-state drives do not use ATAPI. ATAPI is basically a way to issue SCSI commands to a CD-ROM, 
-CD-RW, DVD, or tape drive, attached to the ATA bus. 
-
-ATAPI uses a very small number of ATA commands. The most important are the PACKET 
-command (0xA0), and IDENTIFY PACKET DEVICE (0xA1). 
-
 |
-
 
 References
 =======================
@@ -406,6 +426,10 @@ Internet pages:
 10. http://www.brokenthorn.com/Resources/OSDev12.html
 11. http://www.brokenthorn.com/Resources/OSDev10.html
 12. https://en.wikipedia.org/wiki/File_system
+13. https://en.wikipedia.org/wiki/Parallel_ATA
+14. https://wiki.osdev.org/ATAPI
+15. https://wiki.osdev.org/PCI_IDE_Controller
+
 
 |
 |
