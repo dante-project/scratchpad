@@ -360,10 +360,10 @@ An IDE driver does not need to know whether a drive is parallel or serial, it on
 to know whether it's using ATA or ATAPI. IDE can connect up to 4 drives. Each drive can 
 be one of the following:
 
- -ATA (Serial): Used for most modern hard drives.
- -ATA (Parallel): Commonly used for hard drives.
- -ATAPI (Serial): Used for most modern optical drives.
- -ATAPI (Parallel): Commonly used for optical drives. 
+ - ATA (Serial): Used for most modern hard drives.
+ - ATA (Parallel): Commonly used for hard drives.
+ - ATAPI (Serial): Used for most modern optical drives.
+ - ATAPI (Parallel): Commonly used for optical drives. 
 
 ISO 9660
 ----------------
