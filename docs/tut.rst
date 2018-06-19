@@ -355,15 +355,13 @@ format is present, the x86 architecture makes use of the first little-endian
 sequence and ignores the big-endian sequence. 
 
 
-ATA/ATAPI
+ATA & ATAPI
 ----------------
 Parallel ATA (PATA), originally AT Attachment, is an interface standard for 
 the connection of storage devices such as hard disk drives, floppy disk drives, 
 and optical disc drives in computers. It uses the underlying AT Attachment (ATA) 
 and AT Attachment Packet Interface (ATAPI) standards.
 
-ATAPI
-----------------
 ATA Packet Interface (ATAPI) is a protocol that has been added to Parallel ATA and 
 Serial ATA so that a greater variety of devices can be connected to a computer than 
 with ATA alone. 

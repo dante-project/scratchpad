@@ -322,7 +322,7 @@ The purpose of file system is to organise and store data. File system
 typically supports sharing data among users and applications, as well as
 persistence so data is still available after reboot.
 
-KaT OS implements ISO 9660 file system and ATAPI drivers.
+KaT OS implements ISO 9660 file system and ATA/ATAPI drivers.
 
 ISO 9660
 ----------------
@@ -355,6 +355,28 @@ format is present, the x86 architecture makes use of the first little-endian
 sequence and ignores the big-endian sequence. 
 
 
+ATA/ATAPI
+----------------
+Parallel ATA (PATA), originally AT Attachment, is an interface standard for 
+the connection of storage devices such as hard disk drives, floppy disk drives, 
+and optical disc drives in computers. It uses the underlying AT Attachment (ATA) 
+and AT Attachment Packet Interface (ATAPI) standards.
+
+ATAPI
+----------------
+ATA Packet Interface (ATAPI) is a protocol that has been added to Parallel ATA and 
+Serial ATA so that a greater variety of devices can be connected to a computer than 
+with ATA alone. 
+
+ATAPI devices are also "speaking ATA" because the ATA physical interface and protocol 
+are still being used to send the packets. On the other hand, ATA hard drives and solid 
+state drives do not use ATAPI. ATAPI is basically a way to issue SCSI commands to a CD-ROM, 
+CD-RW, DVD, or tape drive, attached to the ATA bus. 
+
+ATAPI uses a very small number of ATA commands. The most important are the PACKET 
+command (0xA0), and IDENTIFY PACKET DEVICE (0xA1). 
+
+|
 
 
 References

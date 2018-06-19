@@ -358,7 +358,7 @@ with a Multiboot Header, which has the following format:</p>
 <p>The purpose of file system is to organise and store data. File system
 typically supports sharing data among users and applications, as well as
 persistence so data is still available after reboot.</p>
-<p>KaT OS implements ISO 9660 file system and ATAPI drivers.</p>
+<p>KaT OS implements ISO 9660 file system and ATA/ATAPI drivers.</p>
 <div class="section" id="iso-9660">
 <h4>ISO 9660<a class="headerlink" href="#iso-9660" title="Permalink to this headline">¶</a></h4>
 <p>ISO 9660 is the standard file system for CD-ROMs. It is also widely used
@@ -395,6 +395,28 @@ by big-endian). Both-endian (LSB-MSB) fields are therefore twice as wide.
 For this reason, 32-bit LBA&#8217;s often appear as 8 byte fields. Where a both-endian
 format is present, the x86 architecture makes use of the first little-endian
 sequence and ignores the big-endian sequence.</p>
+</div>
+<div class="section" id="ata-atapi">
+<h4>ATA/ATAPI<a class="headerlink" href="#ata-atapi" title="Permalink to this headline">¶</a></h4>
+<p>Parallel ATA (PATA), originally AT Attachment, is an interface standard for
+the connection of storage devices such as hard disk drives, floppy disk drives,
+and optical disc drives in computers. It uses the underlying AT Attachment (ATA)
+and AT Attachment Packet Interface (ATAPI) standards.</p>
+</div>
+<div class="section" id="atapi">
+<h4>ATAPI<a class="headerlink" href="#atapi" title="Permalink to this headline">¶</a></h4>
+<p>ATA Packet Interface (ATAPI) is a protocol that has been added to Parallel ATA and
+Serial ATA so that a greater variety of devices can be connected to a computer than
+with ATA alone.</p>
+<p>ATAPI devices are also &#8220;speaking ATA&#8221; because the ATA physical interface and protocol
+are still being used to send the packets. On the other hand, ATA hard drives and solid
+state drives do not use ATAPI. ATAPI is basically a way to issue SCSI commands to a CD-ROM,
+CD-RW, DVD, or tape drive, attached to the ATA bus.</p>
+<p>ATAPI uses a very small number of ATA commands. The most important are the PACKET
+command (0xA0), and IDENTIFY PACKET DEVICE (0xA1).</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </div>
 </div>
 </div>
@@ -743,6 +765,8 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 <li><a class="reference internal" href="#processes">Processes</a></li>
 <li><a class="reference internal" href="#file-system">File system</a><ul>
 <li><a class="reference internal" href="#iso-9660">ISO 9660</a></li>
+<li><a class="reference internal" href="#ata-atapi">ATA/ATAPI</a></li>
+<li><a class="reference internal" href="#atapi">ATAPI</a></li>
 </ul>
 </li>
 </ul>
