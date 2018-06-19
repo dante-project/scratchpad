@@ -1,7 +1,7 @@
 #!/bin/bash
 if [[ $1 == "build" ]]
 then
-    cmake --build /home/frain/github/os/LambOS/cmake-build-debug --target katos-kernel -- -j 4
+    cmake --target katos-kernel
 fi
 
 if [[ $1 == "docs" ]]
