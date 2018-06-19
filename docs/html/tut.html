@@ -323,6 +323,9 @@ with a Multiboot Header, which has the following format:</p>
 </tr>
 </tbody>
 </table>
+<p>Grub moves kernel into protected mode that allows system software to use
+features such as  virtual memory, paging and safe multi-tasking designed to
+increase an operating system&#8217;s control over application software.</p>
 </div>
 <div class="section" id="device-drivers">
 <h2>Device drivers<a class="headerlink" href="#device-drivers" title="Permalink to this headline">¶</a></h2>
@@ -424,9 +427,86 @@ and 8 is dark grey color. Second cell (0,1) would be 0x000B8000 + 16 = 0x000B801
 (Among others) it has a control register at 0x3D4 and a data register at 0x3D5. We will use these to instruct
 the controller to update it&#8217;s cursor position.</p>
 </div>
-<div class="section" id="descriptor-tables">
-<h3>Descriptor tables<a class="headerlink" href="#descriptor-tables" title="Permalink to this headline">¶</a></h3>
-<p>GDT IDT</p>
+<div class="section" id="global-descriptor-table">
+<h3>Global Descriptor Table<a class="headerlink" href="#global-descriptor-table" title="Permalink to this headline">¶</a></h3>
+<p>The Global Descriptor Table (GDT) is a data structure used by
+Intel x86-family processors starting with the 80286 in order to
+define the characteristics of the various memory areas used
+during program execution, including the base address, the size,
+and access privileges like executability and writability. These
+memory areas are called segments in Intel terminology.</p>
+<p>The GDT can hold things other than segment descriptors as well.
+Every 8-byte entry in the GDT is a descriptor, but these can also
+be Task State Segment (TSS) descriptors, Local Descriptor Table
+(LDT) descriptors, or Call Gate descriptors.</p>
+<p>The x86 architecture has two methods of memory protection and of
+providing virtual memory - segmentation and paging.</p>
+<p>With segmentation, every memory access is evaluated with respect
+to a segment. That is, the memory address is added to the segment&#8217;s
+base address, and checked against the segment&#8217;s length. With paging,
+the address space is split into (usually 4KB, but this can change)
+blocks, called pages. Each page can be mapped into physical
+memory - mapped onto what is called a &#8216;frame&#8217;. Or, it can be unmapped.
+This way one can create virtual memory spaces.</p>
+<p>Both of these methods have their advantages, but paging is much better.
+Segmentation is, although still usable, fast becoming obsolete as a
+method of memory protection and virtual memory. In fact, the x86-64
+architecture requires a flat memory model (one segment with a
+base of 0 and a limit of 0xFFFFFFFF) for some of it&#8217;s instructions
+to operate properly.</p>
+<p>Segmentation is, however, completely in-built into the x86 architecture.
+Every memory access which a program can perform always goes through a segment.
+It&#8217;s impossible to get around it, therefore we need to setup Global Descriptor
+Table - a list of segment descriptors.</p>
+<p>While GRUB does setup GDT for us we don&#8217;t know where it is nor what is in it.
+In the x86, there are 6 segmentation registers. Each holds an offset into the GDT.
+They are cs (code segment), ds (data segment), es (extra segment), fs, gs, ss (stack segment).
+The code segment must reference a descriptor which is set as a &#8216;code segment&#8217;.
+There is a flag for this in the access byte. The rest should all reference a descriptor
+which is set as a &#8216;data segment&#8217;.</p>
+<p>To set up GDT we need to create GDT entry structure and a special pointer structure
+which we give to the processor so it can find the GDT.</p>
+</div>
+<div class="section" id="interrupts">
+<h3>Interrupts<a class="headerlink" href="#interrupts" title="Permalink to this headline">¶</a></h3>
+<p>In system programming, an interrupt is a signal to the processor emitted
+by hardware or software indicating an event that needs immediate attention.
+An interrupt alerts the processor to a high-priority condition requiring
+the interruption of the current code the processor is executing.
+The processor responds by suspending its current activities, saving its
+state, and executing a function called an interrupt handler (or an interrupt
+service routine, ISR) to deal with the event. This interruption is temporary,
+and, after the interrupt handler finishes, the processor resumes normal
+activities.</p>
+<p>There are 3 types of interrupts:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Hardware interrupts: are sent to the processor from an external device (keyboard, mouse, hard disk, ...). Hardware interrupts were introduced as a way to reduce wasting the processor&#8217;s valuable time in polling loops, waiting for external events.</li>
+<li>Software interrupts: are initiated voluntarily by the software. It&#8217;s used to manage system calls.</li>
+<li>Exceptions: are used for errors or events occurring during program execution that are exceptional enough that they cannot be handled within the program itself (division by zero, page fault, ...)</li>
+</ul>
+</div></blockquote>
+<p>The PIC (Programmable interrupt controller)is a device that is used to
+combine several sources of interrupt onto one or more CPU lines, while
+allowing priority levels to be assigned to its interrupt outputs. When the
+device has multiple interrupt outputs to assert, it asserts them in the
+order of their relative priority.</p>
+<p>The Interrupt Descriptor Table tells the processor where to find handlers
+for each interrupt. It is very similar to the GDT. It is just an array of
+entries, each one corresponding to an interrupt number. There are 256
+possible interrupt numbers, so 256 must be defined. If an interrupt occurs
+and there is no entry for it (even a NULL entry is fine), the processor
+will panic and reset. The processor will sometimes needs to signal the kernel.
+Something major may have happened, such as a divide-by-zero, or a page fault.
+To do this, it uses the first 32 interrupts. It is therefore doubly
+important that all of these are mapped and non-NULL - else the CPU will
+triple-fault and reset.</p>
+<p>Like the GDT, the IDT is loaded using the LIDTL assembly instruction.
+It expects the location of a IDT description structure (pointer).</p>
+<p>We define our IDT table and then load it using LIDTL. The IDT table can be
+stored wherever we want in memory, its address should just be signaled to
+the process using the IDTR registry. After intialization of our IDT, we
+can activate interrupts by configuring the PIC.</p>
 </div>
 <div class="section" id="ps-2-keyboard">
 <h3>PS/2 Keyboard<a class="headerlink" href="#ps-2-keyboard" title="Permalink to this headline">¶</a></h3>
@@ -444,11 +524,11 @@ was wrong with the previous command) back.</p>
 </div>
 <div class="section" id="memory-management">
 <h2>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h2>
-<p>Paging, heap?</p>
+<p>segmentation, Paging, heap, virtual memory</p>
 </div>
 <div class="section" id="processes">
 <h2>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h2>
-<p>Write me.</p>
+<p>managment, multitasking, elf, userland and syscalls</p>
 </div>
 <div class="section" id="file-system">
 <h2>File system<a class="headerlink" href="#file-system" title="Permalink to this headline">¶</a></h2>
@@ -581,12 +661,12 @@ pointer to the root node of the new filesystem.</p>
 <li><a class="reference external" href="https://linux.die.net/man/1/qemu-img">https://linux.die.net/man/1/qemu-img</a></li>
 <li><a class="reference external" href="https://wiki.osdev.org/C%2B%2B">https://wiki.osdev.org/C%2B%2B</a></li>
 <li><a class="reference external" href="https://wiki.osdev.org/Boot_Sequence">https://wiki.osdev.org/Boot_Sequence</a></li>
-<li><a class="reference external" href="https://manybutfinite.com/post/how-computers-boot-up/">https://manybutfinite.com/post/how-computers-boot-up/</a></li>
+<li><a class="reference external" href="https://manybutfinite.com/post/how-computers-boot-up">https://manybutfinite.com/post/how-computers-boot-up</a></li>
 <li><a class="reference external" href="https://wiki.osdev.org/GCC_Cross-Compiler">https://wiki.osdev.org/GCC_Cross-Compiler</a></li>
 <li><a class="reference external" href="https://en.wikipedia.org/wiki/Booting#BOOT-LOADER">https://en.wikipedia.org/wiki/Booting#BOOT-LOADER</a></li>
 <li><a class="reference external" href="https://en.wikipedia.org/wiki/GNU_GRUB">https://en.wikipedia.org/wiki/GNU_GRUB</a></li>
-<li><a class="reference external" href="http://www.brokenthorn.com/Resources/OSDev12.html">http://www.brokenthorn.com/Resources/OSDev12.html</a></li>
-<li><a class="reference external" href="http://www.brokenthorn.com/Resources/OSDev10.html">http://www.brokenthorn.com/Resources/OSDev10.html</a></li>
+<li><a class="reference external" href="http://www.brokenthorn.com">http://www.brokenthorn.com</a></li>
+<li><a class="reference external" href="https://en.wikipedia.org/wiki/Interrupt">https://en.wikipedia.org/wiki/Interrupt</a></li>
 <li><a class="reference external" href="https://en.wikipedia.org/wiki/File_system">https://en.wikipedia.org/wiki/File_system</a></li>
 <li><a class="reference external" href="https://en.wikipedia.org/wiki/Parallel_ATA">https://en.wikipedia.org/wiki/Parallel_ATA</a></li>
 <li><a class="reference external" href="https://wiki.osdev.org/ATAPI">https://wiki.osdev.org/ATAPI</a></li>
@@ -622,7 +702,8 @@ pointer to the root node of the new filesystem.</p>
 <li><a class="reference internal" href="#booting">Booting</a></li>
 <li><a class="reference internal" href="#device-drivers">Device drivers</a><ul>
 <li><a class="reference internal" href="#the-screen">The screen</a></li>
-<li><a class="reference internal" href="#descriptor-tables">Descriptor tables</a></li>
+<li><a class="reference internal" href="#global-descriptor-table">Global Descriptor Table</a></li>
+<li><a class="reference internal" href="#interrupts">Interrupts</a></li>
 <li><a class="reference internal" href="#ps-2-keyboard">PS/2 Keyboard</a></li>
 </ul>
 </li>

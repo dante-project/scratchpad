@@ -303,6 +303,10 @@ with a Multiboot Header, which has the following format:
 | end tag        | (u16, u16, u32)  | (0, 0, 8)                               |
 +----------------+------------------+-----------------------------------------+
 
+Grub moves kernel into protected mode that allows system software to use 
+features such as  virtual memory, paging and safe multi-tasking designed to 
+increase an operating system's control over application software.
+
 
 Device drivers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -355,9 +359,95 @@ The VGA controller also has some ports on the main I/O bus, which we can use to 
 (Among others) it has a control register at 0x3D4 and a data register at 0x3D5. We will use these to instruct 
 the controller to update it's cursor position.
 
-Descriptor tables
------------------
-GDT IDT
+Global Descriptor Table
+------------------------
+The Global Descriptor Table (GDT) is a data structure used by 
+Intel x86-family processors starting with the 80286 in order to 
+define the characteristics of the various memory areas used 
+during program execution, including the base address, the size, 
+and access privileges like executability and writability. These 
+memory areas are called segments in Intel terminology.
+
+The GDT can hold things other than segment descriptors as well. 
+Every 8-byte entry in the GDT is a descriptor, but these can also 
+be Task State Segment (TSS) descriptors, Local Descriptor Table 
+(LDT) descriptors, or Call Gate descriptors. 
+
+The x86 architecture has two methods of memory protection and of 
+providing virtual memory - segmentation and paging. 
+
+With segmentation, every memory access is evaluated with respect 
+to a segment. That is, the memory address is added to the segment's 
+base address, and checked against the segment's length. With paging, 
+the address space is split into (usually 4KB, but this can change) 
+blocks, called pages. Each page can be mapped into physical 
+memory - mapped onto what is called a 'frame'. Or, it can be unmapped.
+This way one can create virtual memory spaces. 
+
+Both of these methods have their advantages, but paging is much better. 
+Segmentation is, although still usable, fast becoming obsolete as a 
+method of memory protection and virtual memory. In fact, the x86-64 
+architecture requires a flat memory model (one segment with a 
+base of 0 and a limit of 0xFFFFFFFF) for some of it's instructions 
+to operate properly. 
+
+Segmentation is, however, completely in-built into the x86 architecture. 
+Every memory access which a program can perform always goes through a segment. 
+It's impossible to get around it, therefore we need to setup Global Descriptor 
+Table - a list of segment descriptors. 
+
+While GRUB does setup GDT for us we don't know where it is nor what is in it. 
+In the x86, there are 6 segmentation registers. Each holds an offset into the GDT. 
+They are cs (code segment), ds (data segment), es (extra segment), fs, gs, ss (stack segment). 
+The code segment must reference a descriptor which is set as a 'code segment'. 
+There is a flag for this in the access byte. The rest should all reference a descriptor 
+which is set as a 'data segment'. 
+
+To set up GDT we need to create GDT entry structure and a special pointer structure
+which we give to the processor so it can find the GDT.
+
+Interrupts
+------------------------
+In system programming, an interrupt is a signal to the processor emitted 
+by hardware or software indicating an event that needs immediate attention. 
+An interrupt alerts the processor to a high-priority condition requiring 
+the interruption of the current code the processor is executing. 
+The processor responds by suspending its current activities, saving its 
+state, and executing a function called an interrupt handler (or an interrupt 
+service routine, ISR) to deal with the event. This interruption is temporary, 
+and, after the interrupt handler finishes, the processor resumes normal 
+activities. 
+
+There are 3 types of interrupts:
+
+  - Hardware interrupts: are sent to the processor from an external device (keyboard, mouse, hard disk, ...). Hardware interrupts were introduced as a way to reduce wasting the processor's valuable time in polling loops, waiting for external events.
+  - Software interrupts: are initiated voluntarily by the software. It's used to manage system calls.
+  - Exceptions: are used for errors or events occurring during program execution that are exceptional enough that they cannot be handled within the program itself (division by zero, page fault, ...)
+
+The PIC (Programmable interrupt controller)is a device that is used to 
+combine several sources of interrupt onto one or more CPU lines, while 
+allowing priority levels to be assigned to its interrupt outputs. When the 
+device has multiple interrupt outputs to assert, it asserts them in the 
+order of their relative priority.
+
+The Interrupt Descriptor Table tells the processor where to find handlers 
+for each interrupt. It is very similar to the GDT. It is just an array of 
+entries, each one corresponding to an interrupt number. There are 256 
+possible interrupt numbers, so 256 must be defined. If an interrupt occurs 
+and there is no entry for it (even a NULL entry is fine), the processor 
+will panic and reset. The processor will sometimes needs to signal the kernel. 
+Something major may have happened, such as a divide-by-zero, or a page fault. 
+To do this, it uses the first 32 interrupts. It is therefore doubly 
+important that all of these are mapped and non-NULL - else the CPU will 
+triple-fault and reset.
+
+Like the GDT, the IDT is loaded using the LIDTL assembly instruction. 
+It expects the location of a IDT description structure (pointer).
+
+We define our IDT table and then load it using LIDTL. The IDT table can be 
+stored wherever we want in memory, its address should just be signaled to 
+the process using the IDTR registry. After intialization of our IDT, we 
+can activate interrupts by configuring the PIC.
 
 PS/2 Keyboard
 --------------
@@ -376,12 +466,12 @@ was wrong with the previous command) back.
 
 Memory management
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Paging, heap?
+segmentation, Paging, heap, virtual memory
 
 
 Processes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Write me.
+managment, multitasking, elf, userland and syscalls
 
 
 File system
@@ -512,12 +602,12 @@ Internet pages:
 3. https://linux.die.net/man/1/qemu-img
 4. https://wiki.osdev.org/C%2B%2B
 5. https://wiki.osdev.org/Boot_Sequence
-6. https://manybutfinite.com/post/how-computers-boot-up/
+6. https://manybutfinite.com/post/how-computers-boot-up
 7. https://wiki.osdev.org/GCC_Cross-Compiler
 8. https://en.wikipedia.org/wiki/Booting#BOOT-LOADER
 9. https://en.wikipedia.org/wiki/GNU_GRUB
-10. http://www.brokenthorn.com/Resources/OSDev12.html
-11. http://www.brokenthorn.com/Resources/OSDev10.html
+10. http://www.brokenthorn.com
+11. https://en.wikipedia.org/wiki/Interrupt
 12. https://en.wikipedia.org/wiki/File_system
 13. https://en.wikipedia.org/wiki/Parallel_ATA
 14. https://wiki.osdev.org/ATAPI
