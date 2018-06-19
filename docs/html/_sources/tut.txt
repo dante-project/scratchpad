@@ -1,3 +1,5 @@
+|
+
 Introduction
 =======================
 
@@ -13,6 +15,7 @@ and producing iso (even building documentation) into a single ``vagrant up`` com
 All development and examples were ran on Debian 9. Feel free to work from vagrant machine 
 if you don't want to bother with setting up everything on your own host OS.
 
+|
 
 Development environment
 =======================
@@ -213,25 +216,48 @@ To run the OS in QEMU emulator execute:
 
     qemu-system-i386 -cdrom os.iso 
 
+|
+|
+
+KaT OS Source Code
+==================
+
+::
+
+  src
+  |-bin
+  |-docs
+  |-libs
+  |-kernel
+  |  |-devices
+  |  |-filesys
+  |  |-sys
+  |-userland
+
+Bin contains built ISO image, docs documentation,
+libs contains libc and libcpp, userland contains
+user space aplications.
+
+Kernel directory in its root has main.cpp which
+is os entry point. Devices contain cpu, display,
+input and storage drivers. Sys contains memory,
+process and system drives, including cpp runtime.
+
+Src directory aditionaly contains make file, menu
+file for grub legacy, stage2_eltorito...
+
+|
+|
 
 Basics
 =======================
 x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel's 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term "x86" came into being because the names of several successors to Intel's 8086 processor end in "86", including the 80186, 80286, 80386 and 80486 processors. [1]
 
 
-Bootloader
+Booting
 ~~~~~~~~~~~~~~~~~
-Write me.
 
-
-Entering Protected mode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-write me.
-
-gdt
-----
-write me.
-
+.. image:: boot-process.png
 
 Interrupts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -269,7 +295,9 @@ Books:
 4. Writing a Simple Operating System, N. Blundell
 5. Operating System Concepts 10th ed., A. Silberschatz, G. Gagne, P.B. Galvin
 6. Operating systems design and implementation 3rd ed, A. Tanenbaum
-7. Intel® 64 and IA-32 Architectures Software Developer’s Manual (Vol 3)
+7. The Design of the UNIX Operating System, M.J. Bach
+8. The Design and Implementation of the FreeBSD Operating System
+9. Intel® 64 and IA-32 Architectures Software Developer’s Manual (Vol 3)
 
 Internet pages:
 
@@ -284,3 +312,6 @@ Internet pages:
 9. https://en.wikipedia.org/wiki/GNU_GRUB
 10. http://www.brokenthorn.com/Resources/OSDev12.html
 11. http://www.brokenthorn.com/Resources/OSDev10.html
+
+|
+|
