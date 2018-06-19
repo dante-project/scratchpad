@@ -217,7 +217,7 @@ To run the OS in QEMU emulator execute:
     qemu-system-i386 -cdrom os.iso 
 
 |
-|
+
 
 KaT OS Source Code
 ==================
@@ -247,11 +247,16 @@ Src directory aditionaly contains make file, menu
 file for grub legacy, stage2_eltorito...
 
 |
-|
 
-Basics
+
+Operating system basics
 =======================
-x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel's 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term "x86" came into being because the names of several successors to Intel's 8086 processor end in "86", including the 80186, 80286, 80386 and 80486 processors. [1]
+x86 is a family of backward-compatible instruction set architectures based on 
+the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 
+as a fully 16-bit extension of Intel's 8-bit-based 8080 microprocessor, with memory 
+segmentation as a solution for addressing more memory than can be covered by a plain 
+16-bit address. The term "x86" came into being because the names of several successors 
+to Intel's 8086 processor end in "86", including the 80186, 80286, 80386 and 80486 processors. [1]
 
 
 Booting
@@ -295,26 +300,74 @@ with a Multiboot Header, which has the following format:
 +----------------+------------------+-----------------------------------------+
 
 
-Interrupts
+Device drivers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Write me.
+A device driver is a specific type of computer software developed to allow interaction 
+with hardware devices. Typically this constitutes an interface for communicating with 
+the device, through the specific computer bus or communications subsystem that the 
+hardware is connected to, providing commands to and/or receiving data from the device, 
+and on the other end, the requisite interfaces to the operating system and software 
+applications. It is a specialized hardware-dependent computer program which is also 
+operating system specific that enables another program, typically an operating system or 
+applications software package or computer program running under the operating system kernel, 
+to interact transparently with a hardware device, and usually provides the requisite 
+interrupt handling necessary for any necessary asynchronous time-dependent hardware 
+interfacing needs.
 
-Input and output
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Write me.
-
-keyboard driver
+The screen
 ----------------
-write me.
+Our kernel gets booted by GRUB in text mode. That is, it has available to it a framebuffer 
+(area of memory) that controls a screen of characters (not pixels) 80 wide by 25 high. 
+The area of memory known as the framebuffer is accessible just like normal RAM, at address 0xB8000. 
+It is important to note, however, that it is not actually normal RAM. It is part of the VGA 
+controller's dedicated video memory that has been memory-mapped via hardware into our linear 
+address space. The framebuffer is just an array of 16-bit words, each 16-bit value representing 
+the display of one character. Highest 8 bits are ASCII value of the character, bits 7-4 represent 
+the background and bits 3-0 foreground color.
+
+::
+
+    Bit:     |15 14 13 12 11 10 9 8|7 6 5 4|3 2 1 0|
+    Content: | ASCII               | FG    | BG    |
+
+The offset from the start of the framebuffer of the word that specifies a character at position x, y 
+is simply ``(y * 80 + x) * 2``.
+Say we want to write 'A'(65,or 0x41) with green foreground and dark grey background(8) at place (0,0) 
+we would write assembly code ``mov [0x000B8000], 0x4128`` where ``0x41`` represents ASCII A, 2 is green 
+and 8 is dark grey color. Second cell (0,1) would be 0x000B8000 + 16 = 0x000B8010.
+
+Reference table of available colors:
+
+ ======== ======== ============= ======== ============== ======== ================ ======= 
+  Color    Value      Color       Value       Color       Value        Color        Value  
+ ======== ======== ============= ======== ============== ======== ================ ======= 
+  Black        0    Red               4    Dark grey          8    Light red           12  
+  Blue         1    Magenta           5    Light blue         9    Light magenta       13  
+  Green        2    Brown             6    Light green       10    Light brown         14  
+  Cyan         3    Light grey        7    Light cyan        11    White               15  
+ ======== ======== ============= ======== ============== ======== ================ ======= 
+
+The VGA controller also has some ports on the main I/O bus, which we can use to send it specific instructions. 
+(Among others) it has a control register at 0x3D4 and a data register at 0x3D5. We will use these to instruct 
+the controller to update it's cursor position.
+
+Descriptor tables
+-----------------
+GDT IDT
+
+PS/2 Keyboard
+--------------
+clickclick
 
 Memory management
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Write me.
+Paging, heap?
 
 
 Processes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Write me.
+
 
 File system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -394,6 +447,31 @@ by big-endian). Both-endian (LSB-MSB) fields are therefore twice as wide.
 For this reason, 32-bit LBA's often appear as 8 byte fields. Where a both-endian 
 format is present, the x86 architecture makes use of the first little-endian 
 sequence and ignores the big-endian sequence. 
+
+The virtual filesystem
+----------------------
+A VFS is intended to abstract away details of the filesystem and location 
+that files are stored, and to give access to them in a uniform manner. 
+They are usually implemented as a graph of nodes; Each node representing 
+either a file, directory, symbolic link, device, socket or pipe. Each node 
+should know what filesystem it belongs to and have enough information such 
+that the relevant open/close/etc functions in its driver can be found and 
+executed. A common way to accomplish this is to have the node store function 
+pointers which can be called by the kernel. We need a few function pointers: 
+
+ - Open - Called when a node is opened as a file descriptor.
+ - Close - Called when the node is closed.
+ - Read & Write
+ - Readdir
+ - Finddir
+
+Mountpoints are the UNIX way of accessing different file systems. 
+A filesystem is mounted on a directory - any subsequent access to that 
+directory will actually access the root directory of the new filesystem. 
+So essentially the directory is told that it is a mountpoint and given a 
+pointer to the root node of the new filesystem.
+
+.. image:: vfs-mountpoint.png
 
 |
 

@@ -240,7 +240,6 @@ The ISO image contains the kernel executable, the GRUB bootloader and the config
 </div>
 <div class="line-block">
 <div class="line"><br /></div>
-<div class="line"><br /></div>
 </div>
 </div>
 </div>
@@ -268,12 +267,16 @@ process and system drives, including cpp runtime.</p>
 file for grub legacy, stage2_eltorito...</p>
 <div class="line-block">
 <div class="line"><br /></div>
-<div class="line"><br /></div>
 </div>
 </div>
-<div class="section" id="basics">
-<h2>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h2>
-<p>x86 is a family of backward-compatible instruction set architectures based on the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978 as a fully 16-bit extension of Intel&#8217;s 8-bit-based 8080 microprocessor, with memory segmentation as a solution for addressing more memory than can be covered by a plain 16-bit address. The term &#8220;x86&#8221; came into being because the names of several successors to Intel&#8217;s 8086 processor end in &#8220;86&#8221;, including the 80186, 80286, 80386 and 80486 processors. [1]</p>
+<div class="section" id="operating-system-basics">
+<h2>Operating system basics<a class="headerlink" href="#operating-system-basics" title="Permalink to this headline">¶</a></h2>
+<p>x86 is a family of backward-compatible instruction set architectures based on
+the Intel 8086 CPU and its Intel 8088 variant. The 8086 was introduced in 1978
+as a fully 16-bit extension of Intel&#8217;s 8-bit-based 8080 microprocessor, with memory
+segmentation as a solution for addressing more memory than can be covered by a plain
+16-bit address. The term &#8220;x86&#8221; came into being because the names of several successors
+to Intel&#8217;s 8086 processor end in &#8220;86&#8221;, including the 80186, 80286, 80386 and 80486 processors. [1]</p>
 <div class="section" id="booting">
 <h3>Booting<a class="headerlink" href="#booting" title="Permalink to this headline">¶</a></h3>
 <p>When you turn on a computer, it loads the BIOS from some special flash
@@ -333,21 +336,118 @@ with a Multiboot Header, which has the following format:</p>
 </tbody>
 </table>
 </div>
-<div class="section" id="interrupts">
-<h3>Interrupts<a class="headerlink" href="#interrupts" title="Permalink to this headline">¶</a></h3>
-<p>Write me.</p>
+<div class="section" id="device-drivers">
+<h3>Device drivers<a class="headerlink" href="#device-drivers" title="Permalink to this headline">¶</a></h3>
+<p>A device driver is a specific type of computer software developed to allow interaction
+with hardware devices. Typically this constitutes an interface for communicating with
+the device, through the specific computer bus or communications subsystem that the
+hardware is connected to, providing commands to and/or receiving data from the device,
+and on the other end, the requisite interfaces to the operating system and software
+applications. It is a specialized hardware-dependent computer program which is also
+operating system specific that enables another program, typically an operating system or
+applications software package or computer program running under the operating system kernel,
+to interact transparently with a hardware device, and usually provides the requisite
+interrupt handling necessary for any necessary asynchronous time-dependent hardware
+interfacing needs.</p>
+<div class="section" id="the-screen">
+<h4>The screen<a class="headerlink" href="#the-screen" title="Permalink to this headline">¶</a></h4>
+<p>Our kernel gets booted by GRUB in text mode. That is, it has available to it a framebuffer
+(area of memory) that controls a screen of characters (not pixels) 80 wide by 25 high.
+The area of memory known as the framebuffer is accessible just like normal RAM, at address 0xB8000.
+It is important to note, however, that it is not actually normal RAM. It is part of the VGA
+controller&#8217;s dedicated video memory that has been memory-mapped via hardware into our linear
+address space. The framebuffer is just an array of 16-bit words, each 16-bit value representing
+the display of one character. Highest 8 bits are ASCII value of the character, bits 7-4 represent
+the background and bits 3-0 foreground color.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Bit</span><span class="p">:</span>     <span class="o">|</span><span class="mi">15</span> <span class="mi">14</span> <span class="mi">13</span> <span class="mi">12</span> <span class="mi">11</span> <span class="mi">10</span> <span class="mi">9</span> <span class="mi">8</span><span class="o">|</span><span class="mi">7</span> <span class="mi">6</span> <span class="mi">5</span> <span class="mi">4</span><span class="o">|</span><span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span><span class="o">|</span>
+<span class="n">Content</span><span class="p">:</span> <span class="o">|</span> <span class="n">ASCII</span>               <span class="o">|</span> <span class="n">FG</span>    <span class="o">|</span> <span class="n">BG</span>    <span class="o">|</span>
+</pre></div>
 </div>
-<div class="section" id="input-and-output">
-<h3>Input and output<a class="headerlink" href="#input-and-output" title="Permalink to this headline">¶</a></h3>
-<p>Write me.</p>
-<div class="section" id="keyboard-driver">
-<h4>keyboard driver<a class="headerlink" href="#keyboard-driver" title="Permalink to this headline">¶</a></h4>
-<p>write me.</p>
+<p>The offset from the start of the framebuffer of the word that specifies a character at position x, y
+is simply <code class="docutils literal"><span class="pre">(y</span> <span class="pre">*</span> <span class="pre">80</span> <span class="pre">+</span> <span class="pre">x)</span> <span class="pre">*</span> <span class="pre">2</span></code>.
+Say we want to write &#8216;A&#8217;(65,or 0x41) with green foreground and dark grey background(8) at place (0,0)
+we would write assembly code <code class="docutils literal"><span class="pre">mov</span> <span class="pre">[0x000B8000],</span> <span class="pre">0x4128</span></code> where <code class="docutils literal"><span class="pre">0x41</span></code> represents ASCII A, 2 is green
+and 8 is dark grey color. Second cell (0,1) would be 0x000B8000 + 16 = 0x000B8010.</p>
+<p>Reference table of available colors:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="10%" />
+<col width="16%" />
+<col width="10%" />
+<col width="17%" />
+<col width="10%" />
+<col width="20%" />
+<col width="9%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Color</th>
+<th class="head">Value</th>
+<th class="head">Color</th>
+<th class="head">Value</th>
+<th class="head">Color</th>
+<th class="head">Value</th>
+<th class="head">Color</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Black</td>
+<td>0</td>
+<td>Red</td>
+<td>4</td>
+<td>Dark grey</td>
+<td>8</td>
+<td>Light red</td>
+<td>12</td>
+</tr>
+<tr class="row-odd"><td>Blue</td>
+<td>1</td>
+<td>Magenta</td>
+<td>5</td>
+<td>Light blue</td>
+<td>9</td>
+<td>Light magenta</td>
+<td>13</td>
+</tr>
+<tr class="row-even"><td>Green</td>
+<td>2</td>
+<td>Brown</td>
+<td>6</td>
+<td>Light green</td>
+<td>10</td>
+<td>Light brown</td>
+<td>14</td>
+</tr>
+<tr class="row-odd"><td>Cyan</td>
+<td>3</td>
+<td>Light grey</td>
+<td>7</td>
+<td>Light cyan</td>
+<td>11</td>
+<td>White</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>The VGA controller also has some ports on the main I/O bus, which we can use to send it specific instructions.
+(Among others) it has a control register at 0x3D4 and a data register at 0x3D5. We will use these to instruct
+the controller to update it&#8217;s cursor position.</p>
+</div>
+<div class="section" id="descriptor-tables">
+<h4>Descriptor tables<a class="headerlink" href="#descriptor-tables" title="Permalink to this headline">¶</a></h4>
+<p>GDT IDT</p>
+</div>
+<div class="section" id="ps-2-keyboard">
+<h4>PS/2 Keyboard<a class="headerlink" href="#ps-2-keyboard" title="Permalink to this headline">¶</a></h4>
+<p>clickclick</p>
 </div>
 </div>
 <div class="section" id="memory-management">
 <h3>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h3>
-<p>Write me.</p>
+<p>Paging, heap?</p>
 </div>
 <div class="section" id="processes">
 <h3>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h3>
@@ -431,6 +531,32 @@ by big-endian). Both-endian (LSB-MSB) fields are therefore twice as wide.
 For this reason, 32-bit LBA&#8217;s often appear as 8 byte fields. Where a both-endian
 format is present, the x86 architecture makes use of the first little-endian
 sequence and ignores the big-endian sequence.</p>
+</div>
+<div class="section" id="the-virtual-filesystem">
+<h4>The virtual filesystem<a class="headerlink" href="#the-virtual-filesystem" title="Permalink to this headline">¶</a></h4>
+<p>A VFS is intended to abstract away details of the filesystem and location
+that files are stored, and to give access to them in a uniform manner.
+They are usually implemented as a graph of nodes; Each node representing
+either a file, directory, symbolic link, device, socket or pipe. Each node
+should know what filesystem it belongs to and have enough information such
+that the relevant open/close/etc functions in its driver can be found and
+executed. A common way to accomplish this is to have the node store function
+pointers which can be called by the kernel. We need a few function pointers:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Open - Called when a node is opened as a file descriptor.</li>
+<li>Close - Called when the node is closed.</li>
+<li>Read &amp; Write</li>
+<li>Readdir</li>
+<li>Finddir</li>
+</ul>
+</div></blockquote>
+<p>Mountpoints are the UNIX way of accessing different file systems.
+A filesystem is mounted on a directory - any subsequent access to that
+directory will actually access the root directory of the new filesystem.
+So essentially the directory is told that it is a mountpoint and given a
+pointer to the root node of the new filesystem.</p>
+<img alt="_images/vfs-mountpoint.png" src="_images/vfs-mountpoint.png" />
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -476,81 +602,6 @@ sequence and ignores the big-endian sequence.</p>
 </div>
 <div class="section" id="notes">
 <h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="the-framebuffer">
-<h3>The Framebuffer<a class="headerlink" href="#the-framebuffer" title="Permalink to this headline">¶</a></h3>
-<p>Starting address of memory-mapped I/O for the framebuffer is 0x000B8000. Highest 8 bits are ASCII value of the character, bits 7-4 the background and bits 3-0 foreground color.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Bit</span><span class="p">:</span>     <span class="o">|</span><span class="mi">15</span> <span class="mi">14</span> <span class="mi">13</span> <span class="mi">12</span> <span class="mi">11</span> <span class="mi">10</span> <span class="mi">9</span> <span class="mi">8</span><span class="o">|</span><span class="mi">7</span> <span class="mi">6</span> <span class="mi">5</span> <span class="mi">4</span><span class="o">|</span><span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span><span class="o">|</span>
-<span class="n">Content</span><span class="p">:</span> <span class="o">|</span> <span class="n">ASCII</span>               <span class="o">|</span> <span class="n">FG</span>    <span class="o">|</span> <span class="n">BG</span>    <span class="o">|</span>
-</pre></div>
-</div>
-<p>Say you want to write &#8216;A&#8217;(65,or 0x41) with green foreground and dark grey background(8) at place (0,0) you would write assembly code
-<code class="docutils literal"><span class="pre">mov</span> <span class="pre">[0x000B8000],</span> <span class="pre">0x4128</span></code>
-where 0x41 represents ASCII A, 2 is green and 8 is dark grey color.</p>
-<p>Second cell (0,1) is 0x000B8000 + 16 = 0x000B8010</p>
-<blockquote>
-<div><table border="1" class="docutils">
-<colgroup>
-<col width="10%" />
-<col width="10%" />
-<col width="16%" />
-<col width="10%" />
-<col width="17%" />
-<col width="10%" />
-<col width="20%" />
-<col width="9%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Color</th>
-<th class="head">Value</th>
-<th class="head">Color</th>
-<th class="head">Value</th>
-<th class="head">Color</th>
-<th class="head">Value</th>
-<th class="head">Color</th>
-<th class="head">Value</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>Black</td>
-<td>0</td>
-<td>Red</td>
-<td>4</td>
-<td>Dark grey</td>
-<td>8</td>
-<td>Light red</td>
-<td>12</td>
-</tr>
-<tr class="row-odd"><td>Blue</td>
-<td>1</td>
-<td>Magenta</td>
-<td>5</td>
-<td>Light blue</td>
-<td>9</td>
-<td>Light magenta</td>
-<td>13</td>
-</tr>
-<tr class="row-even"><td>Green</td>
-<td>2</td>
-<td>Brown</td>
-<td>6</td>
-<td>Light green</td>
-<td>10</td>
-<td>Light brown</td>
-<td>14</td>
-</tr>
-<tr class="row-odd"><td>Cyan</td>
-<td>3</td>
-<td>Light grey</td>
-<td>7</td>
-<td>Light cyan</td>
-<td>11</td>
-<td>White</td>
-<td>15</td>
-</tr>
-</tbody>
-</table>
-</div></blockquote>
-</div>
 <div class="section" id="x86-assembly">
 <h3>x86 Assembly<a class="headerlink" href="#x86-assembly" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Lets</span> <span class="n">make</span> <span class="n">some</span> <span class="n">test</span> <span class="n">files</span>
@@ -774,11 +825,12 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 </ul>
 </li>
 <li><a class="reference internal" href="#kat-os-source-code">KaT OS Source Code</a></li>
-<li><a class="reference internal" href="#basics">Basics</a><ul>
+<li><a class="reference internal" href="#operating-system-basics">Operating system basics</a><ul>
 <li><a class="reference internal" href="#booting">Booting</a></li>
-<li><a class="reference internal" href="#interrupts">Interrupts</a></li>
-<li><a class="reference internal" href="#input-and-output">Input and output</a><ul>
-<li><a class="reference internal" href="#keyboard-driver">keyboard driver</a></li>
+<li><a class="reference internal" href="#device-drivers">Device drivers</a><ul>
+<li><a class="reference internal" href="#the-screen">The screen</a></li>
+<li><a class="reference internal" href="#descriptor-tables">Descriptor tables</a></li>
+<li><a class="reference internal" href="#ps-2-keyboard">PS/2 Keyboard</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#memory-management">Memory management</a></li>
@@ -786,13 +838,13 @@ example: &#8220;Entry point: 0x580&#8221;</dd>
 <li><a class="reference internal" href="#file-system">File system</a><ul>
 <li><a class="reference internal" href="#pci-ide-controller">PCI IDE Controller</a></li>
 <li><a class="reference internal" href="#iso-9660">ISO 9660</a></li>
+<li><a class="reference internal" href="#the-virtual-filesystem">The virtual filesystem</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a class="reference internal" href="#references">References</a></li>
 <li><a class="reference internal" href="#notes">Notes</a><ul>
-<li><a class="reference internal" href="#the-framebuffer">The Framebuffer</a></li>
 <li><a class="reference internal" href="#x86-assembly">x86 Assembly</a></li>
 <li><a class="reference internal" href="#gnu-debugger">GNU Debugger</a></li>
 </ul>
