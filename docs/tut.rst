@@ -507,7 +507,12 @@ Segmentation in x86 means accessing the memory through segments.
 Segments are portions of the address space, possibly overlapping, 
 specified by a base address and a limit. To address a byte in segmented 
 memory you use a 48-bit logical address: 16 bits that specifies the 
-segment and 32-bits that specifies what offset within that segment you want. The offset is added to the base address of the segment, and the resulting linear address is checked against the segment’s limit - see the figure below. If everything works out fine (including access-rights checks ignored for now) the result is a linear address. When paging is disabled, then the linear address space is mapped 1:1 onto the physical address space, and the physical memory can be accessed.
+segment and 32-bits that specifies what offset within that segment you want. 
+The offset is added to the base address of the segment, and the resulting linear 
+address is checked against the segment’s limit. If everything 
+works out fine the result is a linear address. 
+When paging is disabled, then the linear address space is mapped 1:1 onto the physical 
+address space, and the physical memory can be accessed.
 We enable segmentation via GDT.
 
 Paging
