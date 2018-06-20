@@ -241,6 +241,7 @@ process and system drives, including cpp runtime.
 Src directory aditionaly contains make file, menu
 file for grub legacy, stage2_eltorito...
 
+.. image:: kernel.png
 |
 
 
