@@ -211,6 +211,8 @@ To run the OS in QEMU emulator execute:
 
     qemu-system-i386 -cdrom os.iso 
 
+.. image:: grub.png
+
 |
 
 
@@ -242,6 +244,7 @@ Src directory aditionaly contains make file, menu
 file for grub legacy, stage2_eltorito...
 
 .. image:: kernel.png
+
 |
 
 
