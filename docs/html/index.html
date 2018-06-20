@@ -270,7 +270,7 @@ programs and to provide a more useful set of services than the hardware
 alone supports. The operating system manages and abstracts the low-level
 hardware, so that, for example, a word processor need not concern itself
 with which type of disk hardware is being used. It also shares the hardware
-among multiple programs so that they run (or ap-pear to run) at the same
+among multiple programs so that they run (or appear to run) at the same
 time. Finally, operating systems provide controlled ways for programs to
 interact, so that they can share data or work together.</p>
 <p>x86 is a family of backward-compatible instruction set architectures based on
@@ -511,12 +511,12 @@ state, and executing a function called an interrupt handler (or an interrupt
 service routine, ISR) to deal with the event. This interruption is temporary,
 and, after the interrupt handler finishes, the processor resumes normal
 activities.</p>
-<p>There are 3 types of interrupts:</p>
+<p>There are 2 types of interrupts plus Exceptions:</p>
 <blockquote>
 <div><ul class="simple">
 <li>Hardware interrupts: are sent to the processor from an external device (keyboard, mouse, hard disk, ...). Hardware interrupts were introduced as a way to reduce wasting the processor&#8217;s valuable time in polling loops, waiting for external events.</li>
 <li>Software interrupts: are initiated voluntarily by the software. It&#8217;s used to manage system calls.</li>
-<li>Exceptions: are used for errors or events occurring during program execution that are exceptional enough that they cannot be handled within the program itself (division by zero, page fault, ...)</li>
+<li>Exceptions are used for errors or events occurring during program execution that are exceptional enough that they cannot be handled within the program itself (division by zero, page fault, ...)</li>
 </ul>
 </div></blockquote>
 <p>The PIC (Programmable interrupt controller)is a device that is used to

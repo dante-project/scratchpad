@@ -251,7 +251,7 @@ programs and to provide a more useful set of services than the hardware
 alone supports. The operating system manages and abstracts the low-level 
 hardware, so that, for example, a word processor need not concern itself 
 with which type of disk hardware is being used. It also shares the hardware 
-among multiple programs so that they run (or ap-pear to run) at the same 
+among multiple programs so that they run (or appear to run) at the same 
 time. Finally, operating systems provide controlled ways for programs to 
 interact, so that they can share data or work together. 
 
@@ -440,11 +440,11 @@ service routine, ISR) to deal with the event. This interruption is temporary,
 and, after the interrupt handler finishes, the processor resumes normal 
 activities. 
 
-There are 3 types of interrupts:
+There are 2 types of interrupts plus Exceptions:
 
   - Hardware interrupts: are sent to the processor from an external device (keyboard, mouse, hard disk, ...). Hardware interrupts were introduced as a way to reduce wasting the processor's valuable time in polling loops, waiting for external events.
   - Software interrupts: are initiated voluntarily by the software. It's used to manage system calls.
-  - Exceptions: are used for errors or events occurring during program execution that are exceptional enough that they cannot be handled within the program itself (division by zero, page fault, ...)
+  - Exceptions are used for errors or events occurring during program execution that are exceptional enough that they cannot be handled within the program itself (division by zero, page fault, ...)
 
 The PIC (Programmable interrupt controller)is a device that is used to 
 combine several sources of interrupt onto one or more CPU lines, while 
