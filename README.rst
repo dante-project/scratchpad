@@ -8,7 +8,7 @@ Every single step from building cross compiler to documentation is automated, on
 
 ::
 
-    git clone git@github.com:dante-project/scratchpad.git
+    git clone git@github.com:frainfreeze/scratchpad.git
     cd scratchpad && vagrant up
 
 The bootstrap.sh script will get executed on machines boot and install all the tools you need to compile the OS.
