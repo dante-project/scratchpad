@@ -1,7 +1,7 @@
 #!/bin/bash
 if [[ $1 == "build" ]]
 then
-    cmake --target katos-kernel
+    cmake --target scratchpados-kernel
 fi
 
 if [[ $1 == "docs" ]]

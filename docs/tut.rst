@@ -178,7 +178,7 @@ for GRUB must be created. This file tells GRUB where the kernel is located and c
 
   set timeout=30
   set default=0
-  menuentry "KaT OS" {
+  menuentry "Scratchpad OS" {
       multiboot /boot/kernel.bin
       boot
   }
@@ -216,8 +216,8 @@ To run the OS in QEMU emulator execute:
 |
 
 
-KaT OS Source Code
-==================
+Scratchpad OS Source Code
+=========================
 
 ::
 
@@ -598,7 +598,7 @@ systems offer some kind of generic SCSI driver interface which abtracts the
 various transports to a single transaction API. These APIs are also available 
 in userspace. 
 
-KaT OS implements ISO 9660 file system and ATA/ATAPI drivers.
+Scratchpad OS implements ISO 9660 file system and ATA/ATAPI drivers.
 
 
 PCI IDE Controller

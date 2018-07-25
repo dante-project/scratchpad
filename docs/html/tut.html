@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &#8212; KaTOS 0.1 documentation</title>
+    <title>Introduction &#8212; ScratchpadOS 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="KaTOS 0.1 documentation" href="index.html" />
+    <link rel="top" title="ScratchpadOS 0.1 documentation" href="index.html" />
     <link rel="prev" title="Notes" href="notes.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -192,7 +192,7 @@ copy the files to their correct places:</p>
 for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:</p>
 <div class="code highlight-default"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span>
 <span class="nb">set</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span>
-<span class="n">menuentry</span> <span class="s2">&quot;KaT OS&quot;</span> <span class="p">{</span>
+<span class="n">menuentry</span> <span class="s2">&quot;Scratchpad OS&quot;</span> <span class="p">{</span>
     <span class="n">multiboot</span> <span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">bin</span>
     <span class="n">boot</span>
 <span class="p">}</span>
@@ -224,8 +224,8 @@ configuration file.</p>
 </div>
 </div>
 </div>
-<div class="section" id="kat-os-source-code">
-<h1>KaT OS Source Code<a class="headerlink" href="#kat-os-source-code" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="scratchpad-os-source-code">
+<h1>Scratchpad OS Source Code<a class="headerlink" href="#scratchpad-os-source-code" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">src</span>
 <span class="o">|-</span><span class="nb">bin</span>
 <span class="o">|-</span><span class="n">docs</span>
@@ -637,7 +637,7 @@ types of controllers and cabling such as ATAPI, SATA, or USB. Many operating
 systems offer some kind of generic SCSI driver interface which abtracts the
 various transports to a single transaction API. These APIs are also available
 in userspace.</p>
-<p>KaT OS implements ISO 9660 file system and ATA/ATAPI drivers.</p>
+<p>Scratchpad OS implements ISO 9660 file system and ATA/ATAPI drivers.</p>
 <div class="section" id="pci-ide-controller">
 <h3>PCI IDE Controller<a class="headerlink" href="#pci-ide-controller" title="Permalink to this headline">¶</a></h3>
 <p>DE is a keyword which refers to the electrical specification of the cables which
@@ -794,7 +794,7 @@ pointer to the root node of the new filesystem.</p>
 <li><a class="reference internal" href="#building-iso">Building ISO</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#kat-os-source-code">KaT OS Source Code</a></li>
+<li><a class="reference internal" href="#scratchpad-os-source-code">Scratchpad OS Source Code</a></li>
 <li><a class="reference internal" href="#operating-system-basics">Operating system basics</a><ul>
 <li><a class="reference internal" href="#booting">Booting</a></li>
 <li><a class="reference internal" href="#device-drivers">Device drivers</a><ul>
@@ -835,7 +835,7 @@ pointer to the root node of the new filesystem.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, frainfreeze, kegl.
+      &copy;2018, frainfreeze.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
