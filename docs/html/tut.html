@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &#8212; ScratchpadOS 0.1 documentation</title>
+    <title>Operating system basics &#8212; ScratchpadOS 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -44,8 +44,6 @@
   <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<div class="section" id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>Developing OS is complex task that requires very specific development environment and
 set of tools. Theoretically one could write an OS in any language he wants, however assembly,
 C and C++ are de facto languages for this kind of job.</p>
@@ -57,199 +55,6 @@ and producing iso (even building documentation) into a single <code class="docut
 if you don&#8217;t want to bother with setting up everything on your own host OS.</p>
 <div class="line-block">
 <div class="line"><br /></div>
-</div>
-</div>
-<div class="section" id="development-environment">
-<h1>Development environment<a class="headerlink" href="#development-environment" title="Permalink to this headline">¶</a></h1>
-<p>Since we will be building and installing a lot of tools frequently many things could go wrong.
-To make our life easier we can use virtual machines, and to make everything even more hassle free,
-we can utilize virtual machine manager, such as vagrant.</p>
-<div class="section" id="preparing-the-box">
-<h2>Preparing the box<a class="headerlink" href="#preparing-the-box" title="Permalink to this headline">¶</a></h2>
-<p>Installing virtualbox and vagrant on Debian 9 is rather straightforward:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="c1"># add stretch-backports main and contrib to your apt sources</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">virtualbox</span>
-<span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">releases</span><span class="o">.</span><span class="n">hashicorp</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">vagrant</span><span class="o">/</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">1</span><span class="o">/</span><span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
-<span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">vagrant_2</span><span class="o">.</span><span class="mf">1.1</span><span class="n">_x86_64</span><span class="o">.</span><span class="n">deb</span>
-</pre></div>
-</div>
-<p>Once we have the software we can write small vagrant script:</p>
-<div class="code ruby highlight-default"><div class="highlight"><pre><span></span><span class="c1"># -*- mode: ruby -*-</span>
-<span class="c1"># vi: set ft=ruby :</span>
-<span class="n">Vagrant</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span> <span class="n">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
-  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="s2">&quot;generic/debian9&quot;</span>
-  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_check_update</span> <span class="o">=</span> <span class="n">false</span>
-  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">synced_folder</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/src&quot;</span>
-  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">provision</span> <span class="p">:</span><span class="n">shell</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="s2">&quot;bootstrap.sh&quot;</span>
-<span class="n">end</span>
-</pre></div>
-</div>
-<p>Save it as Vagrantfile in the root of the project. This particular vagrant file downloads
-Debian 9 image, mounts its root directory under <code class="docutils literal"><span class="pre">/home/src</span></code> in the virtual machine and
-executes <code class="docutils literal"><span class="pre">bootstrap.sh</span></code>. Shell script then invokes <code class="docutils literal"><span class="pre">i686-elf-tools.sh</span></code> script that
-downloads necessary sources and compiles cross compiler. Once the compiler is built
-bootstrap script invokes cmake that builds the OS itself, bootable iso and
-documentation.</p>
-<p>Finally, starting whole building process is as simple as executing <code class="docutils literal"><span class="pre">vargant</span> <span class="pre">up</span></code> in the
-projects root directory.</p>
-</div>
-<div class="section" id="cross-compiler">
-<h2>Cross Compiler<a class="headerlink" href="#cross-compiler" title="Permalink to this headline">¶</a></h2>
-<p>An cross-compiler is a compiler that runs on platform A (the host), but generates executables for platform B (the target).
-These two platforms may (but do not need to) differ in CPU, operating system, and/or executable format. In our case,
-the host platform is our current operating system, and the target platform is the operating system we are building.</p>
-<img alt="_images/cross-compiler.png" src="_images/cross-compiler.png" />
-<p>GCC is great open source compiler and we will use it as cross compiler for our OS. The GNU Compiler Collection is an advanced piece of software with many dependencies. We will also need Binutils which are collection of binary tools, since we are also interested in linker and assembler.</p>
-<p>Cross compiler building process is rather complex and lengthy process. See i686-elf-tools.sh for details.</p>
-</div>
-<div class="section" id="first-steps">
-<h2>First steps<a class="headerlink" href="#first-steps" title="Permalink to this headline">¶</a></h2>
-<p>Small assembly code to demonstrate building bootable iso image.</p>
-<div class="highlight-nasm"><div class="highlight"><pre><span></span><span class="k">global</span> <span class="nv">loader</span>                   <span class="c1">; the entry symbol for ELF</span>
-
-<span class="no">MAGIC_NUMBER</span><span class="kd"> equ</span> <span class="mh">0x1BADB002</span>     <span class="c1">; define the magic number constant</span>
-<span class="no">FLAGS</span><span class="kd">        equ</span> <span class="mh">0x0</span>            <span class="c1">; multiboot flags</span>
-<span class="no">CHECKSUM</span><span class="kd">     equ</span> <span class="o">-</span><span class="nv">MAGIC_NUMBER</span>  <span class="c1">; calculate the checksum</span>
-                                <span class="c1">; (magic number + checksum + flags should equal 0)</span>
-
-<span class="k">section</span> <span class="nv">.text</span><span class="p">:</span>                  <span class="c1">; start of the text (code) section</span>
-<span class="k">align</span> <span class="mi">4</span>                         <span class="c1">; the code must be 4 byte aligned</span>
-    <span class="kd">dd</span> <span class="nv">MAGIC_NUMBER</span>             <span class="c1">; write the magic number to the machine code,</span>
-    <span class="kd">dd</span> <span class="nv">FLAGS</span>                    <span class="c1">; the flags,</span>
-    <span class="kd">dd</span> <span class="nb">CH</span><span class="nv">ECKSUM</span>                 <span class="c1">; and the checksum</span>
-
-<span class="nl">loader:</span>                         <span class="c1">; the loader label (defined as entry point in linker script)</span>
-    <span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0xCAFEBABE</span>         <span class="c1">; place the number 0xCAFEBABE in the register eax</span>
-<span class="nl">.loop:</span>
-    <span class="nf">jmp</span> <span class="nv">.loop</span>                   <span class="c1">; loop forever</span>
-</pre></div>
-</div>
-<p>The file loader.s can be compiled into a 32 bits ELF [18] object file with the following command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>nasm -f elf32 loader.s
-</pre></div>
-</div>
-<p>The code must now be linked to produce an executable file, which requires some extra thought
-compared to when linking most programs. We want GRUB to load the kernel at a memory address
-larger than or equal to 0x00100000 (1 megabyte (MB)), because addresses lower than 1 MB are
-used by GRUB itself, BIOS and memory-mapped I/O. Therefore, the following linker script is
-needed (written for GNU LD):</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">ENTRY</span><span class="p">(</span><span class="n">loader</span><span class="p">)</span>                <span class="o">/*</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">label</span> <span class="o">*/</span>
-
-<span class="n">SECTIONS</span> <span class="p">{</span>
-    <span class="o">.</span> <span class="o">=</span> <span class="mh">0x00100000</span><span class="p">;</span>          <span class="o">/*</span> <span class="n">the</span> <span class="n">code</span> <span class="n">should</span> <span class="n">be</span> <span class="n">loaded</span> <span class="n">at</span> <span class="mi">1</span> <span class="n">MB</span> <span class="o">*/</span>
-
-    <span class="o">.</span><span class="n">text</span> <span class="n">ALIGN</span> <span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span> <span class="p">:</span>   <span class="o">/*</span> <span class="n">align</span> <span class="n">at</span> <span class="mi">4</span> <span class="n">KB</span> <span class="o">*/</span>
-    <span class="p">{</span>
-        <span class="o">*</span><span class="p">(</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>             <span class="o">/*</span> <span class="nb">all</span> <span class="n">text</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
-    <span class="p">}</span>
-
-    <span class="o">.</span><span class="n">rodata</span> <span class="n">ALIGN</span> <span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span> <span class="p">:</span> <span class="o">/*</span> <span class="n">align</span> <span class="n">at</span> <span class="mi">4</span> <span class="n">KB</span> <span class="o">*/</span>
-    <span class="p">{</span>
-        <span class="o">*</span><span class="p">(</span><span class="o">.</span><span class="n">rodata</span><span class="o">*</span><span class="p">)</span>          <span class="o">/*</span> <span class="nb">all</span> <span class="n">read</span><span class="o">-</span><span class="n">only</span> <span class="n">data</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
-    <span class="p">}</span>
-
-    <span class="o">.</span><span class="n">data</span> <span class="n">ALIGN</span> <span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span> <span class="p">:</span>   <span class="o">/*</span> <span class="n">align</span> <span class="n">at</span> <span class="mi">4</span> <span class="n">KB</span> <span class="o">*/</span>
-    <span class="p">{</span>
-        <span class="o">*</span><span class="p">(</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>             <span class="o">/*</span> <span class="nb">all</span> <span class="n">data</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
-    <span class="p">}</span>
-
-    <span class="o">.</span><span class="n">bss</span> <span class="n">ALIGN</span> <span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span> <span class="p">:</span>    <span class="o">/*</span> <span class="n">align</span> <span class="n">at</span> <span class="mi">4</span> <span class="n">KB</span> <span class="o">*/</span>
-    <span class="p">{</span>
-        <span class="o">*</span><span class="p">(</span><span class="n">COMMON</span><span class="p">)</span>            <span class="o">/*</span> <span class="nb">all</span> <span class="n">COMMON</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
-        <span class="o">*</span><span class="p">(</span><span class="o">.</span><span class="n">bss</span><span class="p">)</span>              <span class="o">/*</span> <span class="nb">all</span> <span class="n">bss</span> <span class="n">sections</span> <span class="kn">from</span> <span class="nn">all</span> <span class="n">files</span> <span class="o">*/</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Save the linker script into a file called link.ld. The executable can now be linked with
-the following command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>ld -T link.ld -melf_i386 loader.o -o kernel.elf
-</pre></div>
-</div>
-<p>If you have GRUB installed, you can check whether a file has a valid Multiboot version 1 header,
-which is the case for our kernel. It&#8217;s important that the Multiboot header is within the first
-8 KiB of the actual program file at 4 byte alignment. This can potentially break later if you
-make a mistake in the boot assembly, the linker script, or anything else that might go wrong.
-If the header isn&#8217;t valid, GRUB will give an error that it can&#8217;t find a Multiboot header when
-you try to boot it. This code fragment will help you diagnose such cases:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">grub</span><span class="o">-</span><span class="n">file</span> <span class="o">--</span><span class="ow">is</span><span class="o">-</span><span class="n">x86</span><span class="o">-</span><span class="n">multiboot</span> <span class="n">kernel</span><span class="o">.</span><span class="n">elf</span>
-</pre></div>
-</div>
-<p>Grub-file is quiet but will exit 0 (successfully) if it is a valid multiboot kernel and exit 1
-(unsuccessfully) otherwise. You can type <code class="docutils literal"><span class="pre">echo</span> <span class="pre">$?</span></code> in your shell immediately afterwards to see
-the exit status.</p>
-</div>
-<div class="section" id="building-iso">
-<h2>Building ISO<a class="headerlink" href="#building-iso" title="Permalink to this headline">¶</a></h2>
-<p>We will create the kernel ISO image with the program grub-mkrescue. A folder must first be created
-that contains the files that will be on the ISO image. The following commands create the folder and
-copy the files to their correct places:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">grub</span>              <span class="c1"># create the folder structure</span>
-<span class="n">cp</span> <span class="n">kernel</span><span class="o">.</span><span class="n">bin</span> <span class="n">iso</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span>             <span class="c1"># copy the kernel</span>
-</pre></div>
-</div>
-<p>A <a class="reference external" href="https://www.gnu.org/software/grub/manual/legacy/Configuration.html#Configuration">configuration file</a> menu.cfg
-for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span>
-<span class="nb">set</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span>
-<span class="n">menuentry</span> <span class="s2">&quot;Scratchpad OS&quot;</span> <span class="p">{</span>
-    <span class="n">multiboot</span> <span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">bin</span>
-    <span class="n">boot</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Place the file in the folder iso/boot/grub/. The contents of the iso folder should now look like the
-following figure:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>iso
-└── boot
-    ├── grub
-    │   └── grub.cfg
-    └── kernel.bin
-</pre></div>
-</div>
-<p>Finally, make a ISO9660 image file by invoking:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">grub</span><span class="o">-</span><span class="n">mkrescue</span> <span class="o">-</span><span class="n">o</span> <span class="n">os</span><span class="o">.</span><span class="n">iso</span> <span class="n">iso</span>
-</pre></div>
-</div>
-<p>This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly
-into virtual machine. The ISO image contains the kernel executable, the GRUB bootloader and the
-configuration file.</p>
-<p>To run the OS in QEMU emulator execute:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">qemu</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">i386</span> <span class="o">-</span><span class="n">cdrom</span> <span class="n">os</span><span class="o">.</span><span class="n">iso</span>
-</pre></div>
-</div>
-<img alt="_images/grub.png" src="_images/grub.png" />
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
-</div>
-</div>
-<div class="section" id="scratchpad-os-source-code">
-<h1>Scratchpad OS Source Code<a class="headerlink" href="#scratchpad-os-source-code" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">src</span>
-<span class="o">|-</span><span class="nb">bin</span>
-<span class="o">|-</span><span class="n">docs</span>
-<span class="o">|-</span><span class="n">libs</span>
-<span class="o">|-</span><span class="n">kernel</span>
-<span class="o">|</span>  <span class="o">|-</span><span class="n">devices</span>
-<span class="o">|</span>  <span class="o">|-</span><span class="n">filesys</span>
-<span class="o">|</span>  <span class="o">|-</span><span class="n">sys</span>
-<span class="o">|-</span><span class="n">userland</span>
-</pre></div>
-</div>
-<p>Bin contains built ISO image, docs documentation,
-libs contains libc and libcpp, userland contains
-user space aplications.</p>
-<p>Kernel directory in its root has main.cpp which
-is os entry point. Devices contain cpu, display,
-input and storage drivers. Sys contains memory,
-process and system drives, including cpp runtime.</p>
-<p>Src directory aditionaly contains make file, menu
-file for grub legacy, stage2_eltorito...</p>
-<img alt="_images/kernel.png" src="_images/kernel.png" />
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
 </div>
 <div class="section" id="operating-system-basics">
 <h1>Operating system basics<a class="headerlink" href="#operating-system-basics" title="Permalink to this headline">¶</a></h1>
@@ -736,9 +541,8 @@ pointer to the root node of the new filesystem.</p>
 </div>
 </div>
 </div>
-</div>
 <div class="section" id="references">
-<h1>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h1>
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <p>Books:</p>
 <ol class="arabic simple">
 <li>xv6 book 10th ed, R. Cox, F. Kaashoek, R. Morris</li>
@@ -774,6 +578,7 @@ pointer to the root node of the new filesystem.</p>
 <div class="line"><br /></div>
 </div>
 </div>
+</div>
 
 
           </div>
@@ -786,16 +591,7 @@ pointer to the root node of the new filesystem.</p>
             </a></p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Introduction</a></li>
-<li><a class="reference internal" href="#development-environment">Development environment</a><ul>
-<li><a class="reference internal" href="#preparing-the-box">Preparing the box</a></li>
-<li><a class="reference internal" href="#cross-compiler">Cross Compiler</a></li>
-<li><a class="reference internal" href="#first-steps">First steps</a></li>
-<li><a class="reference internal" href="#building-iso">Building ISO</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#scratchpad-os-source-code">Scratchpad OS Source Code</a></li>
-<li><a class="reference internal" href="#operating-system-basics">Operating system basics</a><ul>
+<li><a class="reference internal" href="#">Operating system basics</a><ul>
 <li><a class="reference internal" href="#booting">Booting</a></li>
 <li><a class="reference internal" href="#device-drivers">Device drivers</a><ul>
 <li><a class="reference internal" href="#the-screen">The screen</a></li>
@@ -818,9 +614,9 @@ pointer to the root node of the new filesystem.</p>
 <li><a class="reference internal" href="#the-virtual-filesystem">The virtual filesystem</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#references">References</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>

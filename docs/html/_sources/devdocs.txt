@@ -1,0 +1,231 @@
+Development environment
+=======================
+Since we will be building and installing a lot of tools frequently many things could go wrong.
+To make our life easier we can use virtual machines, and to make everything even more hassle free,
+we can utilize virtual machine manager, such as vagrant. 
+
+Preparing the box
+~~~~~~~~~~~~~~~~~~~
+Installing virtualbox and vagrant on Debian 9 is rather straightforward:
+
+.. code:: bash
+
+    # add stretch-backports main and contrib to your apt sources
+    sudo apt install virtualbox
+    wget https://releases.hashicorp.com/vagrant/2.1.1/vagrant_2.1.1_x86_64.deb
+    sudo dpkg -i vagrant_2.1.1_x86_64.deb
+
+Once we have the software we can write small vagrant script:
+
+.. code:: ruby
+
+  # -*- mode: ruby -*-
+  # vi: set ft=ruby :
+  Vagrant.configure("2") do |config|
+    config.vm.box = "generic/debian9"
+    config.vm.box_check_update = false
+    config.vm.synced_folder ".", "/home/src"
+    config.vm.provision :shell, path: "bootstrap.sh"
+  end
+
+Save it as Vagrantfile in the root of the project. This particular vagrant file downloads
+Debian 9 image, mounts its root directory under ``/home/src`` in the virtual machine and
+executes ``bootstrap.sh``. Shell script then invokes ``i686-elf-tools.sh`` script that 
+downloads necessary sources and compiles cross compiler. Once the compiler is built 
+bootstrap script invokes cmake that builds the OS itself, bootable iso and 
+documentation.
+
+Finally, starting whole building process is as simple as executing ``vargant up`` in the 
+projects root directory.
+
+Cross Compiler
+~~~~~~~~~~~~~~
+An cross-compiler is a compiler that runs on platform A (the host), but generates executables for platform B (the target). 
+These two platforms may (but do not need to) differ in CPU, operating system, and/or executable format. In our case, 
+the host platform is our current operating system, and the target platform is the operating system we are building.
+
+.. image:: cross-compiler.png
+
+GCC is great open source compiler and we will use it as cross compiler for our OS. The GNU Compiler Collection is an advanced piece of software with many dependencies. We will also need Binutils which are collection of binary tools, since we are also interested in linker and assembler.
+
+Cross compiler building process is rather complex and lengthy process. See i686-elf-tools.sh for details.
+
+
+First steps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Small assembly code to demonstrate building bootable iso image.
+
+.. code-block:: nasm
+
+    global loader                   ; the entry symbol for ELF
+
+    MAGIC_NUMBER equ 0x1BADB002     ; define the magic number constant
+    FLAGS        equ 0x0            ; multiboot flags
+    CHECKSUM     equ -MAGIC_NUMBER  ; calculate the checksum
+                                    ; (magic number + checksum + flags should equal 0)
+
+    section .text:                  ; start of the text (code) section
+    align 4                         ; the code must be 4 byte aligned
+        dd MAGIC_NUMBER             ; write the magic number to the machine code,
+        dd FLAGS                    ; the flags,
+        dd CHECKSUM                 ; and the checksum
+
+    loader:                         ; the loader label (defined as entry point in linker script)
+        mov eax, 0xCAFEBABE         ; place the number 0xCAFEBABE in the register eax
+    .loop:
+        jmp .loop                   ; loop forever
+
+The file loader.s can be compiled into a 32 bits ELF [18] object file with the following command:
+
+.. code-block:: bash
+
+    nasm -f elf32 loader.s
+
+The code must now be linked to produce an executable file, which requires some extra thought 
+compared to when linking most programs. We want GRUB to load the kernel at a memory address 
+larger than or equal to 0x00100000 (1 megabyte (MB)), because addresses lower than 1 MB are 
+used by GRUB itself, BIOS and memory-mapped I/O. Therefore, the following linker script is 
+needed (written for GNU LD):
+
+.. code::
+
+  ENTRY(loader)                /* the name of the entry label */
+  
+  SECTIONS {
+      . = 0x00100000;          /* the code should be loaded at 1 MB */
+  
+      .text ALIGN (0x1000) :   /* align at 4 KB */
+      {
+          *(.text)             /* all text sections from all files */
+      }
+  
+      .rodata ALIGN (0x1000) : /* align at 4 KB */
+      {
+          *(.rodata*)          /* all read-only data sections from all files */
+      }
+  
+      .data ALIGN (0x1000) :   /* align at 4 KB */
+      {
+          *(.data)             /* all data sections from all files */
+      }
+  
+      .bss ALIGN (0x1000) :    /* align at 4 KB */
+      {
+          *(COMMON)            /* all COMMON sections from all files */
+          *(.bss)              /* all bss sections from all files */
+      }
+  }
+
+
+Save the linker script into a file called link.ld. The executable can now be linked with 
+the following command:
+
+.. code-block:: bash
+
+    ld -T link.ld -melf_i386 loader.o -o kernel.elf
+
+If you have GRUB installed, you can check whether a file has a valid Multiboot version 1 header, 
+which is the case for our kernel. It's important that the Multiboot header is within the first 
+8 KiB of the actual program file at 4 byte alignment. This can potentially break later if you 
+make a mistake in the boot assembly, the linker script, or anything else that might go wrong. 
+If the header isn't valid, GRUB will give an error that it can't find a Multiboot header when 
+you try to boot it. This code fragment will help you diagnose such cases: 
+
+.. code:: bash
+
+  grub-file --is-x86-multiboot kernel.elf
+
+Grub-file is quiet but will exit 0 (successfully) if it is a valid multiboot kernel and exit 1
+(unsuccessfully) otherwise. You can type ``echo $?`` in your shell immediately afterwards to see 
+the exit status. 
+
+Building ISO 
+~~~~~~~~~~~~
+We will create the kernel ISO image with the program grub-mkrescue. A folder must first be created 
+that contains the files that will be on the ISO image. The following commands create the folder and 
+copy the files to their correct places:
+
+.. code:: bash
+
+    mkdir -p iso/boot/grub              # create the folder structure
+    cp kernel.bin iso/boot/             # copy the kernel
+
+
+A `configuration file <https://www.gnu.org/software/grub/manual/legacy/Configuration.html#Configuration>`_ menu.cfg 
+for GRUB must be created. This file tells GRUB where the kernel is located and configures some options:
+
+.. code::
+
+  set timeout=30
+  set default=0
+  menuentry "Scratchpad OS" {
+      multiboot /boot/kernel.bin
+      boot
+  }
+
+
+Place the file in the folder iso/boot/grub/. The contents of the iso folder should now look like the 
+following figure:
+
+.. code::
+
+ iso
+ └── boot
+     ├── grub
+     │   └── grub.cfg
+     └── kernel.bin
+
+Finally, make a ISO9660 image file by invoking: 
+
+.. code:: bash
+
+    grub-mkrescue -o os.iso iso
+
+This produces a file named os.iso, which then can be burned into a CD (or a DVD) or loaded directly 
+into virtual machine. The ISO image contains the kernel executable, the GRUB bootloader and the 
+configuration file.
+
+To run the OS in QEMU emulator execute:
+
+.. code:: bash
+
+    qemu-system-i386 -cdrom os.iso 
+
+.. image:: grub.png
+
+|
+
+
+Scratchpad OS Source Code
+=========================
+
+::
+
+  src
+  |-bin
+  |-docs
+  |-libs
+  |-kernel
+  |  |-devices
+  |  |-filesys
+  |  |-sys
+  |-userland
+
+Bin contains built ISO image, docs documentation,
+libs contains libc and libcpp, userland contains
+user space aplications.
+
+Kernel directory in its root has main.cpp which
+is os entry point. Devices contain cpu, display,
+input and storage drivers. Sys contains memory,
+process and system drives, including cpp runtime.
+
+Src directory aditionaly contains make file, menu
+file for grub legacy, stage2_eltorito...
+
+.. image:: kernel.png
+
+|
+
+
